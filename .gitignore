@@ -1,0 +1,34 @@
+# 依赖
+node_modules/
+dist/
+
+# 环境变量（包含敏感信息）
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# 构建输出
+build/
+dist/
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 临时文件
+*.tmp
+*.temp
