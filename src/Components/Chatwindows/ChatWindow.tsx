@@ -10,42 +10,50 @@ import {
   Title,
   MainContent
 } from './styled';
+import ClearHistoryButton from './ClearHistoryButton';
 
 const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // 移除未使用的 error 状态，错误信息通过消息气泡展示
   
   // 获取钱包连接状态
   const currentAccount = useCurrentAccount();
   const isWalletConnected = !!currentAccount;
   const walletAddress = currentAccount?.address;
-
+  const welcomeString = (isWalletConnected: boolean) => `👋 欢迎使用 AI 区块链助手！
+        我可以帮助您：
+        • 💬 日常聊天和问答
+        • 🔗 区块链知识解答
+        • 💰 Sui 钱包操作指导（需要连接钱包）
+        • 🎯 DeFi 和 NFT 相关咨询
+        ${isWalletConnected 
+          ? `🎉 检测到您已连接钱包！我可以为您提供更专业的区块链服务。` 
+          : `💡 提示：连接钱包后，我可以帮您进行更多区块链操作！`
+        }
+        有什么我可以帮助您的吗？`;
   // 初始化欢迎消息
   React.useEffect(() => {
     if (messages.length === 0) {
       const welcomeMessage: Message = {
         id: 'welcome-1',
-        content: `👋 欢迎使用 AI 区块链助手！
-
-我可以帮助您：
-• 💬 日常聊天和问答
-• 🔗 区块链知识解答
-• 💰 Sui 钱包操作指导（需要连接钱包）
-• 🎯 DeFi 和 NFT 相关咨询
-
-${isWalletConnected 
-  ? `🎉 检测到您已连接钱包！我可以为您提供更专业的区块链服务。` 
-  : `💡 提示：连接钱包后，我可以帮您进行更多区块链操作！`
-}
-
-有什么我可以帮助您的吗？`,
+        content: welcomeString(isWalletConnected),
         sender: 'assistant',
         timestamp: new Date(),
       };
       setMessages([welcomeMessage]);
     }
   }, [isWalletConnected]); // 当钱包连接状态改变时重新设置欢迎消息
+
+  const handleClear = useCallback(() => {
+    const welcomeMessage: Message = {
+      id: 'welcome-1',
+      content: welcomeString(isWalletConnected),
+      sender: 'assistant',
+      timestamp: new Date(),
+    };
+    setMessages([welcomeMessage]);
+  }, [isWalletConnected]);
 
   const handleSendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -57,13 +65,14 @@ ${isWalletConnected
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]); // 异步状态，为的是更新UI
     setIsLoading(true);
-    setError(null);
+  // 不再维护单独的 error 状态
 
     try {
-      // 准备对话历史（包含当前用户消息）
-      const conversationHistory = [...messages, userMessage];
+      // 准备对话历史（限制长度避免token超限，只保留最近5轮对话）
+      const allMessages = [...messages, userMessage];
+      const conversationHistory = allMessages.slice(-6); // 最近6条消息（约3轮对话），防止把所有的消息都发送过去
       
       // 使用 Agent 系统处理消息，传入钱包状态
       const response = await openAIService.processWithAgent(  //这里开始调用agent
@@ -103,8 +112,6 @@ ${isWalletConnected
         }
       }
       
-      setError(errorMessage);
-      
       // 添加错误消息到聊天记录
       const errorAiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -137,6 +144,7 @@ ${isWalletConnected
             </span>
           )}
         </Title>
+        <ClearHistoryButton onClear={handleClear} disabled={isLoading} />
       </Header>
       
       <MainContent>

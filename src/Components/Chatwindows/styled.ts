@@ -227,3 +227,28 @@ export const MessageBubble = styled.div<{ $isUser: boolean; $isError?: boolean }
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   `}
 `;
+
+// 清空按钮样式
+export const ClearButton = styled.button<{ disabled?: boolean }>`
+  padding: 8px 12px;
+  border: 1px solid #E0E0E0;
+  background-color: #ffffff;
+  color: #1A1A1A;
+  border-radius: 8px;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  opacity: ${props => props.disabled ? 0.6 : 1};
+  font-size: 13px;
+  line-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background-color: ${props => props.disabled ? '#ffffff' : '#f7f7f7'};
+  }
+
+  &:active {
+    transform: ${props => props.disabled ? 'none' : 'scale(0.98)'};
+  }
+`;
