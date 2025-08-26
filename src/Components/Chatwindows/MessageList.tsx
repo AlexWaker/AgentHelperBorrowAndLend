@@ -13,6 +13,7 @@ import {
   LoadingDot
 } from './styled';
 import { Message } from './types';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface MessageListProps {
   messages: Message[];
@@ -59,7 +60,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading = false }
           {messages.map((message) => (
             <MessageContainer key={message.id}>
               <MessageBubble $isUser={message.sender === 'user'} $isError={message.isError}>
-                {message.content}
+                {message.sender === 'user' ? (
+                  message.content
+                ) : (
+                  <MarkdownRenderer content={message.content} />
+                )}
               </MessageBubble>
               <MessageMeta $isUser={message.sender === 'user'}>
                 {message.sender === 'user' ? '我' : 'AI'} • {formatTime(message.timestamp)}

@@ -1,10 +1,10 @@
-export const queryCoinPrompt = (connectedWallet: any): string => {
+export const queryCoinPrompt = (walletAddress: string | undefined): string => {
     return `【余额查询任务】
     已确定用户意图为：余额查询
 
     【查询规则】
     - 如果用户指定了钱包地址，查询该地址的余额
-    - 如果用户未指定地址，查询当前连接的钱包：${connectedWallet || '未连接'}
+    - 如果用户未指定地址，查询当前连接的钱包：${walletAddress || '未连接'}
 
     【验证要求】
     请检查以下情况并给出相应处理：
@@ -21,6 +21,13 @@ export const queryCoinPrompt = (connectedWallet: any): string => {
     "errorMessage": "错误信息（如果有）"
     }
 
+    请分析以下用户输入：`;
+};
+
+export const queryNotClear = (): string => {
+    return `【指令含糊不清】
+    已确定用户查询余额的指令不清晰，
+    请根据用户输入，给出用户建议（比如建议用户给出明确的查询地址）
     请分析以下用户输入：`;
 }
 

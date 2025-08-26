@@ -75,9 +75,9 @@ const ChatWindow: React.FC = () => {
       const conversationHistory = allMessages.slice(-6); // 最近6条消息（约3轮对话），防止把所有的消息都发送过去
       
       // 使用 Agent 系统处理消息，传入钱包状态
-      const response = await openAIService.processWithAgent(  //这里开始调用agent
-        conversationHistory, 
-        isWalletConnected, 
+      const response = await openAIService.processWithAgent(
+        conversationHistory,
+        isWalletConnected,
         walletAddress
       );
       

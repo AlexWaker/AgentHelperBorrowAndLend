@@ -252,3 +252,63 @@ export const ClearButton = styled.button<{ disabled?: boolean }>`
     transform: ${props => props.disabled ? 'none' : 'scale(0.98)'};
   }
 `;
+
+// Markdown 样式组件
+export const MarkdownParagraph = styled.div`
+  margin: 0;
+  line-height: 1.4;
+`;
+
+export const MarkdownList = styled.ul`
+  margin: 8px 0;
+  padding-left: 20px;
+`;
+
+export const MarkdownOrderedList = styled.ol`
+  margin: 8px 0;
+  padding-left: 20px;
+`;
+
+export const MarkdownListItem = styled.li`
+  margin-bottom: 4px;
+`;
+
+export const MarkdownInlineCode = styled.code`
+  background-color: rgba(0,0,0,0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+`;
+
+export const MarkdownCodeBlock = styled.pre`
+  background-color: rgba(0,0,0,0.1);
+  padding: 8px;
+  border-radius: 6px;
+  overflow: auto;
+  font-size: 0.85em;
+`;
+
+export const MarkdownBlockquote = styled.blockquote`
+  border-left: 3px solid rgba(255,255,255,0.3);
+  padding-left: 12px;
+  margin: 8px 0;
+  font-style: italic;
+`;
+
+export const MarkdownH1 = styled.h1`
+  font-size: 1.2em;
+  margin: 8px 0 4px 0;
+  font-weight: bold;
+`;
+
+export const MarkdownH2 = styled.h2`
+  font-size: 1.1em;
+  margin: 8px 0 4px 0;
+  font-weight: bold;
+`;
+
+export const MarkdownH3 = styled.h3`
+  font-size: 1.05em;
+  margin: 6px 0 4px 0;
+  font-weight: bold;
+`;
