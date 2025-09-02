@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
 import ChatInput from './ChatInput';
 import MessageList from './MessageList';
 import { Message } from './types';
@@ -19,6 +19,7 @@ const ChatWindow: React.FC = () => {
   
   // 获取钱包连接状态
   const currentAccount = useCurrentAccount();
+  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
   const isWalletConnected = !!currentAccount;
   const walletAddress = currentAccount?.address;
   const welcomeString = (isWalletConnected: boolean) => `👋 欢迎使用 AI 区块链助手！
@@ -69,16 +70,25 @@ const ChatWindow: React.FC = () => {
     setIsLoading(true);
   // 不再维护单独的 error 状态
 
-    try {
+  try {
       // 准备对话历史（限制长度避免token超限，只保留最近5轮对话）
       const allMessages = [...messages, userMessage];
-      const conversationHistory = allMessages.slice(-6); // 最近6条消息（约3轮对话），防止把所有的消息都发送过去
-      
+      const conversationHistory = allMessages.slice(-2); // 最近2条消息（约1轮对话），防止把所有的消息都发送过去
+
       // 使用 Agent 系统处理消息，传入钱包状态
       const response = await openAIService.processWithAgent(
         conversationHistory,
         isWalletConnected,
-        walletAddress
+        walletAddress,
+        async ({ transaction }) => {
+          // 让钱包签名并执行交易
+          // signAndExecute是拉下钱包让用户授权的操作，这个操作需要金额和发送地址，金额和发送
+          // 地址被后面打包为transaction。提供给signAndExecute
+          /*signAndExecute被写到回调函数里也会在本层起作用吗
+          是的，你的理解完全正确。尽管 signAndExecute 被写在了回调函数里，但它依然会在你当前的代码层级（你自己的应用代码中）起作用。
+          是一个非常关键且巧妙的设计，它体现了回调函数的本质：将执行权暂时交给另一个函数，但最终又会回到你自己的代码中。*/
+          return await signAndExecute({ transaction });
+        }
       );
       
       // 添加 AI 回复

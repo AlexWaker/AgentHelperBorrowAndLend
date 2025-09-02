@@ -10,12 +10,13 @@ import App from "./App.tsx";
 import { networkConfig } from "./networkConfig.ts";
 
 const queryClient = new QueryClient();
+const env = import.meta.env.VITE_SUI_ENV
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Theme appearance="dark">
       <QueryClientProvider client={queryClient}>
-        <SuiClientProvider networks={networkConfig} defaultNetwork="testnet">
+        <SuiClientProvider networks={networkConfig} defaultNetwork={env}>
           <WalletProvider autoConnect>
             <App />
           </WalletProvider>
