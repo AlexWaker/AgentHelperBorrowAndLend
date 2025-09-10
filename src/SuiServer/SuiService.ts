@@ -99,7 +99,7 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 		return await signer({ transaction: tx, chain }); // 调用签名器提交交易
 	} // 方法结束：transferSui
 
-	async getTransactionDetails(digest: string): Promise<{ // 根据交易哈希查询并解析交易详情
+	async getTransactionDetails(digest: string, coin: string): Promise<{ // 根据交易哈希查询并解析交易详情
 		digest: string; // 交易哈希
 		sender: string; // 发送方地址
 		recipient: string; // 接收方地址
@@ -126,22 +126,20 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 			const sender = txResponse.transaction?.data.sender || ''; // 发送方地址
 			let recipient = ''; // 接收方地址占位
 			let amount = '0'; // 金额占位（最小单位）
-			let coinType = '0x2::sui::SUI'; // 默认币种类型为 SUI
+			const coinType = coinAddress[coin as keyof typeof coinAddress].address; // 转发币种
 
 			// 从余额变化中提取转账信息
 			if (txResponse.balanceChanges) { // 若接口返回余额变化
 				for (const change of txResponse.balanceChanges) { // 遍历余额变化
-					if (change.coinType === '0x2::sui::SUI') { // 只处理 SUI 币种
+					if (change.coinType === coinType) { // 只处理 SUI 币种
 						const changeAmount = BigInt(change.amount); // 将变化金额转为 bigint
 						let ownerAddress = ''; // 所有者地址
-                        
 						// 处理不同类型的 owner
 						if (typeof change.owner === 'string') { // 如果直接是字符串
 							ownerAddress = change.owner; // 记录地址
 						} else if (change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner) { // 如果是对象包裹
 							ownerAddress = change.owner.AddressOwner as string; // 取出地址
 						}
-                        
 						if (changeAmount < 0 && ownerAddress === sender) { // 发送方的负余额变化
 							// 发送方的负余额变化
 							amount = (-changeAmount).toString(); // 记录转出金额
@@ -181,7 +179,7 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 				sender, // 发送方
 				recipient, // 接收方
 				amount, // 金额（最小单位）
-				amountSui: this.toCoin('sui', amount), // 金额（人类单位）
+				amountSui: this.toCoin(coin, amount), // 金额（人类单位）
 				coinType, // 币种类型
 				status, // 状态
 				gasUsed, // Gas 使用

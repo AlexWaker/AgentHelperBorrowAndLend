@@ -5,7 +5,7 @@ const ToolBar = () => {
   return (
     <ToolBarContainer>
       <WelcomeText>
-        欢迎
+        欢迎来到Navi Protocol的Agent世界
       </WelcomeText>
       
       <SuiConnectButton />

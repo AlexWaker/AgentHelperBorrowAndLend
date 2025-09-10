@@ -33,7 +33,7 @@ export const queryNotClear = (): string => {
     return `已确定用户查询余额的指令不清晰，请根据之后的内容，给出用户建议（比如建议用户给出明确的查询地址）`;
 }
 
-export const queryResultPrompt = (queryResult: any): string => {
+export const queryCoinResultPrompt = (queryResult: any): string => {
     return `【余额查询完成】
 
     查询结果：

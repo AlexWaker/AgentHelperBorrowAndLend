@@ -1,0 +1,2459 @@
+[
+  {
+    "borrowCapCeiling": "800000000000000000000000000",
+    "coinType": "9d297676e7a4b771ab023291377b2adfaa4938fb9080b8d12430e4b108b836a9::xaum::XAUM",
+    "currentBorrowIndex": "1000948538737655272354217122",
+    "currentBorrowRate": "82831773357802264628513894",
+    "currentSupplyIndex": "1000004034975410032460812489",
+    "currentSupplyRate": "820962831409489590259667",
+    "id": 31,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "500000000000000000000000000",
+    "oracleId": 31,
+    "supplyCapCeiling": "1e+30",
+    "treasuryBalance": "307228",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x9d297676e7a4b771ab023291377b2adfaa4938fb9080b8d12430e4b108b836a9::xaum::XAUM",
+    "totalSupplyAmount": "173926323285",
+    "minimumAmount": "100",
+    "leftSupply": "826.073676715",
+    "validBorrowAmount": "139141058628",
+    "borrowedAmount": "2462613645",
+    "leftBorrowAmount": "139141058626",
+    "availableBorrow": "136678444983",
+    "contract": {
+      "reserveId": "0x520aaee2b1b1172ef23e66cdca01dc35acd44a2e2ee293843ea4a4511f3f7110",
+      "pool": "0x33b2924f2b7e12112a134ad69d9f2b3565c316b0a756e328abe9914c8deca034"
+    },
+    "token": {
+      "coinType": "0x9d297676e7a4b771ab023291377b2adfaa4938fb9080b8d12430e4b108b836a9::xaum::XAUM",
+      "decimals": 9,
+      "logoUri": "https://app.matrixdock.com/images/xaum/xaum-64x64-icon.png",
+      "symbol": "XAUM"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "3673769000000",
+      "price": "3673.769",
+      "oracleId": 31,
+      "valid": true
+    },
+    "totalSupply": "173925621499",
+    "totalBorrow": "2460279974",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "80000000000000000000000000",
+        "multiplier": "200000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "600000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.6"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.082",
+      "boostedApr": "20.0151",
+      "rewardCoin": [
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "20.097",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "8.283",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "8.283",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "0",
+    "coinType": "a03ab7eee2c8e97111977b77374eaf6324ba617e7027382228350db08469189e::ybtc::YBTC",
+    "currentBorrowIndex": "1000000000000000000000000000",
+    "currentBorrowRate": "0",
+    "currentSupplyIndex": "1000000000000000000000000000",
+    "currentSupplyRate": "0",
+    "id": 30,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "400000000000000000000000000",
+    "oracleId": 30,
+    "supplyCapCeiling": "7e+28",
+    "treasuryBalance": "0",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xa03ab7eee2c8e97111977b77374eaf6324ba617e7027382228350db08469189e::ybtc::YBTC",
+    "totalSupplyAmount": "41028885680",
+    "minimumAmount": "7",
+    "leftSupply": "28.97111432",
+    "validBorrowAmount": "0",
+    "borrowedAmount": "0",
+    "leftBorrowAmount": "0",
+    "availableBorrow": "0",
+    "contract": {
+      "reserveId": "0x052727f47790aff100bdd3e53aa5dbfd1c55ab632713021e7ad4722dc91d8474",
+      "pool": "0xadc7f434a042018d41d08c9e9efc851a6fcaeb779273755d47a5029f056206ef"
+    },
+    "token": {
+      "coinType": "0xa03ab7eee2c8e97111977b77374eaf6324ba617e7027382228350db08469189e::ybtc::YBTC",
+      "decimals": 8,
+      "logoUri": "https://static.bitlayer.org/logo/YBTC_Black.svg",
+      "symbol": "YBTC.B"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 30,
+      "valid": true
+    },
+    "totalSupply": "41028885680",
+    "totalBorrow": "0",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.45"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "3.1022",
+      "rewardCoin": [
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "3.102",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "0",
+    "coinType": "d1a91b46bd6d966b62686263609074ad16cfdffc63c31a4775870a2d54d20c6b::mbtc::MBTC",
+    "currentBorrowIndex": "1000000000000000000000000000",
+    "currentBorrowRate": "0",
+    "currentSupplyIndex": "1000000000000000000000000000",
+    "currentSupplyRate": "0",
+    "id": 29,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "550000000000000000000000000",
+    "oracleId": 29,
+    "supplyCapCeiling": "3e+29",
+    "treasuryBalance": "0",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xd1a91b46bd6d966b62686263609074ad16cfdffc63c31a4775870a2d54d20c6b::mbtc::MBTC",
+    "totalSupplyAmount": "299990930600",
+    "minimumAmount": "30",
+    "leftSupply": "0.0090694",
+    "validBorrowAmount": "0",
+    "borrowedAmount": "0",
+    "leftBorrowAmount": "0",
+    "availableBorrow": "0",
+    "contract": {
+      "reserveId": "0x17665e447178ba70dd291a6b24812c0c718dc008d4bc135b1f745c6b19197156",
+      "pool": "0x1cea8c1275b3ec9d61faaf2d5bde53c0a5c8a7f939a68f7cf5ad4b9ed38b8e78"
+    },
+    "token": {
+      "coinType": "0xd1a91b46bd6d966b62686263609074ad16cfdffc63c31a4775870a2d54d20c6b::mbtc::MBTC",
+      "decimals": 8,
+      "logoUri": "https://x4rjmmpwhoncvduw.public.blob.vercel-storage.com/uploads/2025-08-13/v4o4gc2m45ma1olzzeg8-Hw93u0s8TrnJqPREb2LCx0oBsYBglQ",
+      "symbol": "MBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 29,
+      "valid": true
+    },
+    "totalSupply": "299990930600",
+    "totalBorrow": "0",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.65"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "0",
+    "coinType": "8f2b5eb696ed88b71fea398d330bccfa52f6e2a5a8e1ac6180fcb25c6de42ebc::coin::COIN",
+    "currentBorrowIndex": "1000000000000000000000000000",
+    "currentBorrowRate": "0",
+    "currentSupplyIndex": "1000000000000000000000000000",
+    "currentSupplyRate": "0",
+    "id": 28,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "500000000000000000000000000",
+    "oracleId": 28,
+    "supplyCapCeiling": "5.5e+29",
+    "treasuryBalance": "0",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x8f2b5eb696ed88b71fea398d330bccfa52f6e2a5a8e1ac6180fcb25c6de42ebc::coin::COIN",
+    "totalSupplyAmount": "549999230760",
+    "minimumAmount": "55",
+    "leftSupply": "0.00076924",
+    "validBorrowAmount": "0",
+    "borrowedAmount": "0",
+    "leftBorrowAmount": "0",
+    "availableBorrow": "0",
+    "contract": {
+      "reserveId": "0xe10cb3da49d69a525d1dc5e6c203f09050cbecf2e36af6d7da10f954fc8cf0d5",
+      "pool": "0x35017707dfbacfc79e9cbd9d36bd7df02be9fc7fe8ad5765b20517a6971616d2"
+    },
+    "token": {
+      "coinType": "0x8f2b5eb696ed88b71fea398d330bccfa52f6e2a5a8e1ac6180fcb25c6de42ebc::coin::COIN",
+      "decimals": 8,
+      "logoUri": "https://i.postimg.cc/pLGqCjFN/enzoBTC.png",
+      "symbol": "enzoBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 28,
+      "valid": true
+    },
+    "totalSupply": "549999230760",
+    "totalBorrow": "0",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.6"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "600000000000000000000000000",
+    "coinType": "7262fb2f7a3a14c888c438a3cd9b912469a58cf60f367352c46584262e8299aa::ika::IKA",
+    "currentBorrowIndex": "1098887263108136003475204044",
+    "currentBorrowRate": "295092088694871647666498359",
+    "currentSupplyIndex": "1015987593277502516386953184",
+    "currentSupplyRate": "20560761407433868042861224",
+    "id": 27,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "300000000000000000000000000",
+    "oracleId": 27,
+    "supplyCapCeiling": "2e+35",
+    "treasuryBalance": "1528902055646442",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x7262fb2f7a3a14c888c438a3cd9b912469a58cf60f367352c46584262e8299aa::ika::IKA",
+    "totalSupplyAmount": "137691996289684065",
+    "minimumAmount": "20000000",
+    "leftSupply": "62308003.71031594",
+    "validBorrowAmount": "82615197773810439",
+    "borrowedAmount": "19187598552714501",
+    "leftBorrowAmount": "82615197754622840",
+    "availableBorrow": "63427599221095938",
+    "contract": {
+      "reserveId": "0x96e0827599a28f7eadeaa5165a67c4a5414d21f55070c61b5b66583b2a845d6d",
+      "pool": "0x3566577feaba2f24b9e0b315a10f1afe04e7d275c2da6f28caeba095d00dee8d",
+      "rewardFundId": "0xd378384c3a93869cac01098b045dc5d9bdbe254cb0562644db473daf2090f3df"
+    },
+    "token": {
+      "coinType": "0x7262fb2f7a3a14c888c438a3cd9b912469a58cf60f367352c46584262e8299aa::ika::IKA",
+      "decimals": 9,
+      "logoUri": "https://token-logos.noodles.fi/ika.svg",
+      "symbol": "IKA"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "35900000",
+      "price": "0.0359",
+      "oracleId": 27,
+      "valid": true
+    },
+    "totalSupply": "135525273340690747",
+    "totalBorrow": "17460934526116484",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "100000000000000000000000000",
+        "multiplier": "1400000000000000000000000000",
+        "jumpRateMultiplier": "12000000000000000000000000000",
+        "optimalUtilization": "300000000000000000000000000",
+        "reserveFactor": "500000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.35"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "2.056",
+      "boostedApr": "115.2915",
+      "rewardCoin": [
+        "0x7262fb2f7a3a14c888c438a3cd9b912469a58cf60f367352c46584262e8299aa::ika::IKA",
+        "0xa99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX"
+      ],
+      "apy": "117.347",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "29.509",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "29.509",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "700000000000000000000000000",
+    "coinType": "876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC",
+    "currentBorrowIndex": "1000857647473075018904952560",
+    "currentBorrowRate": "6630805938997011206638270",
+    "currentSupplyIndex": "1000050863628958136012486288",
+    "currentSupplyRate": "1538865559022331242620862",
+    "id": 26,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "670000000000000000000000000",
+    "oracleId": 26,
+    "supplyCapCeiling": "6e+29",
+    "treasuryBalance": "5758322",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC",
+    "totalSupplyAmount": "335054364356",
+    "minimumAmount": "60",
+    "leftSupply": "264.945635644",
+    "validBorrowAmount": "234538055049.2",
+    "borrowedAmount": "111084028825",
+    "leftBorrowAmount": "234538054938.2",
+    "availableBorrow": "123454026224.2",
+    "contract": {
+      "reserveId": "0x9a1a0533b157361a5cc42ed64fdee6970ab66eb4731afa6dde8e7fe27a36d24d",
+      "pool": "0xd9c9a1d8a2f82d752d4f2504c1097636bbe7f0f335a89be85f65fb32dc6b1866"
+    },
+    "token": {
+      "coinType": "0x876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC",
+      "decimals": 8,
+      "logoUri": "https://static.coinall.ltd/cdn/oksupport/common/20250512-095503.72e1f41d9b9a06.png",
+      "symbol": "xBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 26,
+      "valid": true
+    },
+    "totalSupply": "335037323142",
+    "totalBorrow": "110988839527",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "20000000000000000000000000",
+        "jumpRateMultiplier": "4000000000000000000000000000",
+        "optimalUtilization": "800000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.7"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.153",
+      "boostedApr": "2.3661",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "2.519",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.663",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.663",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "500000000000000000000000000",
+    "coinType": "3a304c7feba2d819ea57c3542d68439ca2c386ba02159c740f7b406e592c62ea::haedal::HAEDAL",
+    "currentBorrowIndex": "1118606102241545550260100702",
+    "currentBorrowRate": "316114042337692992236147815",
+    "currentSupplyIndex": "1006916655174889691327861910",
+    "currentSupplyRate": "4457140679047752416768968",
+    "id": 25,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "500000000000000000000000000",
+    "oracleId": 25,
+    "supplyCapCeiling": "3e+34",
+    "treasuryBalance": "1032197254045",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x3a304c7feba2d819ea57c3542d68439ca2c386ba02159c740f7b406e592c62ea::haedal::HAEDAL",
+    "totalSupplyAmount": "7940197318940029",
+    "minimumAmount": "3000000",
+    "leftSupply": "22059802.681059971",
+    "validBorrowAmount": "3970098659470014.5",
+    "borrowedAmount": "159935885551950",
+    "leftBorrowAmount": "3970098659310078.5",
+    "availableBorrow": "3810162773918064.5",
+    "contract": {
+      "reserveId": "0x09c7b740981a2aa81b407e83d052a46cf1830c7470f80d053e6a49715eb29876",
+      "pool": "0x930f5cf61dcb66d699ba57b2eb72da6fd04c64a53073cc40f751ef12c77aaa6a",
+      "rewardFundId": "0xa1d5ba382609b8cb209f3be8003f73b16fd58b17b5af007c01206eaaa27ad0df"
+    },
+    "token": {
+      "coinType": "0x3a304c7feba2d819ea57c3542d68439ca2c386ba02159c740f7b406e592c62ea::haedal::HAEDAL",
+      "decimals": 9,
+      "logoUri": "https://node1.irys.xyz/Rp80fmqZS3qBDnfyxyKEvc65nVdTunjOG3NY8T6AjpI",
+      "symbol": "HAEDAL"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "141180580",
+      "price": "0.14118058",
+      "oracleId": 25,
+      "valid": true
+    },
+    "totalSupply": "7885654962734636",
+    "totalBorrow": "142977841110878",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "300000000000000000000000000",
+        "multiplier": "800000000000000000000000000",
+        "jumpRateMultiplier": "3500000000000000000000000000",
+        "optimalUtilization": "200000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.55"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.445",
+      "boostedApr": "18.3875",
+      "rewardCoin": [
+        "0x3a304c7feba2d819ea57c3542d68439ca2c386ba02159c740f7b406e592c62ea::haedal::HAEDAL"
+      ],
+      "apy": "18.832",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "31.611",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "31.611",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "500000000000000000000000000",
+    "coinType": "356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL",
+    "currentBorrowIndex": "1163876445114812979936733125",
+    "currentBorrowRate": "322890265968423438145077071",
+    "currentSupplyIndex": "1019565945163895064899332631",
+    "currentSupplyRate": "51152945606689093224686999",
+    "id": 24,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "600000000000000000000000000",
+    "oracleId": 24,
+    "supplyCapCeiling": "1.2e+35",
+    "treasuryBalance": "58647559953975",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL",
+    "totalSupplyAmount": "92996911162914766",
+    "minimumAmount": "12000000",
+    "leftSupply": "27003088.83708523",
+    "validBorrowAmount": "46498455581457383",
+    "borrowedAmount": "21046817563312135",
+    "leftBorrowAmount": "46498455560410565",
+    "availableBorrow": "25451638018145248",
+    "contract": {
+      "reserveId": "0xe6824edab84affecc78646e87fe85ca8fd4374335680e9daee2c981f13dce202",
+      "pool": "0xef76883525f5c2ff90cd97732940dbbdba0b391e29de839b10588cee8e4fe167",
+      "rewardFundId": "0xe65f2d9ea46cd8d44a08ec9b7728173a3b9383c7346c496eb88543574db1db51"
+    },
+    "token": {
+      "coinType": "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL",
+      "decimals": 9,
+      "logoUri": "https://www.walrus.xyz/wal-icon.svg",
+      "symbol": "WAL"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "422989880",
+      "price": "0.42298988",
+      "oracleId": 24,
+      "valid": true
+    },
+    "totalSupply": "91212257141410826",
+    "totalBorrow": "18083377880575570",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "200000000000000000000000000",
+        "multiplier": "543000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "700000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.65"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "5.115",
+      "boostedApr": "33.0647",
+      "rewardCoin": [
+        "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL",
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "38.179",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "32.289",
+      "boostedApr": "16.2333",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+        "0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL"
+      ],
+      "apy": "16.055",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "700000000000000000000000000",
+    "coinType": "3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040::lbtc::LBTC",
+    "currentBorrowIndex": "1001066468335036203102922800",
+    "currentBorrowRate": "912776081431766213430264",
+    "currentSupplyIndex": "1000037415552148294482714476",
+    "currentSupplyRate": "7290151529796890173935",
+    "id": 23,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "600000000000000000000000000",
+    "oracleId": 23,
+    "supplyCapCeiling": "7.5e+29",
+    "treasuryBalance": "140895",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040::lbtc::LBTC",
+    "totalSupplyAmount": "649327817193",
+    "minimumAmount": "75",
+    "leftSupply": "100.672182807",
+    "validBorrowAmount": "454529472035.1",
+    "borrowedAmount": "7408636324",
+    "leftBorrowAmount": "454529472028.1",
+    "availableBorrow": "447120835711.1",
+    "contract": {
+      "reserveId": "0x1acee7192fe5dd422ee6e0376417f80a709172d67cec1bf0e660666eee6eb627",
+      "pool": "0x377b8322c0d349b44b5873d418192eefe871b9372bb3a86f288cafe97317de04"
+    },
+    "token": {
+      "coinType": "0x3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040::lbtc::LBTC",
+      "decimals": 8,
+      "logoUri": "https://www.lombard.finance/lbtc/LBTC.png",
+      "symbol": "LBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11188657917011",
+      "price": "111886.57917011",
+      "oracleId": 23,
+      "valid": true
+    },
+    "totalSupply": "649303523143",
+    "totalBorrow": "7400743665",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.65"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0",
+      "boostedApr": "0.978",
+      "rewardCoin": [
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "0.978",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.091",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.091",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "600000000000000000000000000",
+    "coinType": "b7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
+    "currentBorrowIndex": "1032741572129442289416735964",
+    "currentBorrowRate": "63018483330944529855794682",
+    "currentSupplyIndex": "1000563102731490909681796829",
+    "currentSupplyRate": "560649132770961022518594",
+    "id": 22,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "600000000000000000000000000",
+    "oracleId": 22,
+    "supplyCapCeiling": "1e+31",
+    "treasuryBalance": "9676063",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
+    "totalSupplyAmount": "1015167243478",
+    "minimumAmount": "1000",
+    "leftSupply": "8984.832756522",
+    "validBorrowAmount": "609100346086.8",
+    "borrowedAmount": "12902414431",
+    "leftBorrowAmount": "609100346073.8",
+    "availableBorrow": "596197931655.8",
+    "contract": {
+      "reserveId": "0x2e2f8b1c34b23b1db894e08a87adda35b387a289fe644ca479fc4f7ec9065c8e",
+      "pool": "0xac5f6d750063244cc5abceef712b7ea1aa377f73762099b31c0051a842c13b10"
+    },
+    "token": {
+      "coinType": "0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN",
+      "decimals": 8,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/sol.png/public",
+      "symbol": "SOL"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "21385069714",
+      "price": "213.85069714",
+      "oracleId": 22,
+      "valid": true
+    },
+    "totalSupply": "1014595921743",
+    "totalBorrow": "12493362114",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "60000000000000000000000000",
+        "multiplier": "237500000000000000000000000",
+        "jumpRateMultiplier": "14750000000000000000000000000",
+        "optimalUtilization": "800000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.65"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.056",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.056",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "6.301",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "6.301",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "200000000000000000000000000",
+    "coinType": "aafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC",
+    "currentBorrowIndex": "1002876598198889811590733487",
+    "currentBorrowRate": "3267514917936228183479809",
+    "currentSupplyIndex": "1000237867329847113258030516",
+    "currentSupplyRate": "373682880862752860012205",
+    "id": 21,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "600000000000000000000000000",
+    "oracleId": 21,
+    "supplyCapCeiling": "6.5e+29",
+    "treasuryBalance": "4669051",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xaafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC",
+    "totalSupplyAmount": "488266241175",
+    "minimumAmount": "65",
+    "leftSupply": "161.733758825",
+    "validBorrowAmount": "97653248235",
+    "borrowedAmount": "79770862234",
+    "leftBorrowAmount": "97653248155",
+    "availableBorrow": "17882386001",
+    "contract": {
+      "reserveId": "0xb6a8441d447dd5b7cd45ef874728a700cd05366c331f9cc1e37a4665f0929c2b",
+      "pool": "0x348f4049063e6c4c860064d67a170a7b3de033db9d67545d98fa5da3999966bc"
+    },
+    "token": {
+      "coinType": "0xaafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC",
+      "decimals": 8,
+      "logoUri": "https://bridge-assets.sui.io/suiWBTC.png",
+      "symbol": "WBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 21,
+      "valid": true
+    },
+    "totalSupply": "488150126208",
+    "totalBorrow": "79542051711",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "20000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "800000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.65"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.037",
+      "boostedApr": "2.4927",
+      "rewardCoin": [
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "2.529",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.326",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.326",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "300000000000000000000000000",
+    "coinType": "d1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI",
+    "currentBorrowIndex": "1004951681616257258411488330",
+    "currentBorrowRate": "13359606489536497076728000",
+    "currentSupplyIndex": "1000401961289417134607179237",
+    "currentSupplyRate": "1071142298906320700833954",
+    "id": 20,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "700000000000000000000000000",
+    "oracleId": 20,
+    "supplyCapCeiling": "5e+32",
+    "treasuryBalance": "1455775802",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xd1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI",
+    "totalSupplyAmount": "67835063667553",
+    "minimumAmount": "50000",
+    "leftSupply": "432164.936332447",
+    "validBorrowAmount": "20350519100265.9",
+    "borrowedAmount": "6798573119745",
+    "leftBorrowAmount": "20350519093466.9",
+    "availableBorrow": "13551945980520.9",
+    "contract": {
+      "reserveId": "0x9a91a751ff83ef1eb940066a60900d479cbd39c6eaccdd203632c97dedd10ce9",
+      "pool": "0x0bccd5189d311002f4e10dc98270a3362fb3f7f9d48164cf40828f6c09f351e2",
+      "rewardFundId": "0x65a952a1f239c48d8c6fc80de1d3bb248ce6905d1c3897c2ef52948fc7df3616"
+    },
+    "token": {
+      "coinType": "0xd1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI",
+      "decimals": 9,
+      "logoUri": "https://images.alphafi.xyz/stSUI.png",
+      "symbol": "stSUI"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "3480048760",
+      "price": "3.48004876",
+      "oracleId": 20,
+      "valid": true
+    },
+    "totalSupply": "67807807553796",
+    "totalBorrow": "6765074624096",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "133300000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "750000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.75"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.107",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "2.878",
+      "voloApy": "0",
+      "stakingYieldApy": "2.77145016420783",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "1.335",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "1.335",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "960000000000000000000000000",
+    "coinType": "375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+    "currentBorrowIndex": "1098722318424692904900746694",
+    "currentBorrowRate": "203997512505650428863330831",
+    "currentSupplyIndex": "1052819648994877935495489900",
+    "currentSupplyRate": "150033280318793980415087550",
+    "id": 19,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "800000000000000000000000000",
+    "oracleId": 19,
+    "supplyCapCeiling": "3e+34",
+    "treasuryBalance": "18795492994307",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+    "totalSupplyAmount": "18276497353606456",
+    "minimumAmount": "3000000",
+    "leftSupply": "11723502.646393545",
+    "validBorrowAmount": "17545437459462197.76",
+    "borrowedAmount": "16802183893712144",
+    "leftBorrowAmount": "17545437442660013.76",
+    "availableBorrow": "743253565750053.76",
+    "contract": {
+      "reserveId": "0x2abb6f2b007fef1e59133b027f53eca568f3af79e310e6f16d4b37bc09664a50",
+      "pool": "0xa3e0471746e5d35043801bce247d3b3784cc74329d39f7ed665446ddcf22a9e2"
+    },
+    "token": {
+      "coinType": "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+      "decimals": 6,
+      "logoUri": "https://app.naviprotocol.io/imgs/token/suiusdt.png",
+      "symbol": "suiUSDT"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "1000002",
+      "price": "1.000002",
+      "oracleId": 19,
+      "valid": true
+    },
+    "totalSupply": "17359570911366390",
+    "totalBorrow": "15292475279652541",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "45000000000000000000000000",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "4500000000000000000000000000",
+        "optimalUtilization": "900000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.08",
+      "ratio": "0.35",
+      "threshold": "0.85"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "15.003",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "15.003",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "20.399",
+      "boostedApr": "5.0505",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "15.348",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "850000000000000000000000000",
+    "coinType": "ce7ff77a83ea0cb6fd39bd8748e2ec89a3f41e8efdc3f4eb123e0ca37b184db2::buck::BUCK",
+    "currentBorrowIndex": "1038258646758132971973067086",
+    "currentBorrowRate": "71930555704055493329939688",
+    "currentSupplyIndex": "1010257985953777034253983460",
+    "currentSupplyRate": "11042339410840189208679111",
+    "id": 18,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "700000000000000000000000000",
+    "oracleId": 18,
+    "supplyCapCeiling": "2.5e+34",
+    "treasuryBalance": "4666809487852",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xce7ff77a83ea0cb6fd39bd8748e2ec89a3f41e8efdc3f4eb123e0ca37b184db2::buck::BUCK",
+    "totalSupplyAmount": "23657919886949413",
+    "minimumAmount": "2500000",
+    "leftSupply": "1342080.113050587",
+    "validBorrowAmount": "20109231903907001.05",
+    "borrowedAmount": "5188313456287332",
+    "leftBorrowAmount": "20109231898718688.05",
+    "availableBorrow": "14920918447619669.05",
+    "contract": {
+      "reserveId": "0xe1182350b6756e664f824aa1448f5fc741ddc868168dbe09ed3a6e79b7bf249c",
+      "pool": "0x98953e1c8af4af0cd8f59a52f9df6e60c9790b8143f556751f10949b40c76c50"
+    },
+    "token": {
+      "coinType": "0xce7ff77a83ea0cb6fd39bd8748e2ec89a3f41e8efdc3f4eb123e0ca37b184db2::buck::BUCK",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/buck.svg/public",
+      "symbol": "BUCK"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "999170680",
+      "price": "0.99917068",
+      "oracleId": 18,
+      "valid": true
+    },
+    "totalSupply": "23417701434563912",
+    "totalBorrow": "4997130023898537",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "100000000000000000000000000",
+        "jumpRateMultiplier": "5500000000000000000000000000",
+        "optimalUtilization": "800000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.75"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "1.104",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "1.104",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "7.193",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "7.193",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "600000000000000000000000000",
+    "coinType": "e1b45a0e641b9955a20aa0ad1c1f4ad86aad8afb07296d4085e349a50e90bdca::blue::BLUE",
+    "currentBorrowIndex": "1027501496221211177231192499",
+    "currentBorrowRate": "22901137464256995178800773",
+    "currentSupplyIndex": "1003113808516453144450496675",
+    "currentSupplyRate": "611872446682927867652448",
+    "id": 17,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "400000000000000000000000000",
+    "oracleId": 17,
+    "supplyCapCeiling": "7e+33",
+    "treasuryBalance": "35811660668",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xe1b45a0e641b9955a20aa0ad1c1f4ad86aad8afb07296d4085e349a50e90bdca::blue::BLUE",
+    "totalSupplyAmount": "3895832775102126",
+    "minimumAmount": "700000",
+    "leftSupply": "3104167.224897874",
+    "validBorrowAmount": "2337499665061275.6",
+    "borrowedAmount": "148698692572363",
+    "leftBorrowAmount": "2337499664912576.6",
+    "availableBorrow": "2188800972488912.6",
+    "contract": {
+      "reserveId": "0xcc993cdfc8fcf421115bb4b2c2247abbfecff35bcab777bb368b4b829d39b073",
+      "pool": "0xe2cfd1807f5b44b44d7cabff5376099e76c5f0e4b35a01bdc4b0ef465a23e32c"
+    },
+    "token": {
+      "coinType": "0xe1b45a0e641b9955a20aa0ad1c1f4ad86aad8afb07296d4085e349a50e90bdca::blue::BLUE",
+      "decimals": 9,
+      "logoUri": "https://bluefin.io/images/square.png",
+      "symbol": "BLUE"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "68655960",
+      "price": "0.06865596",
+      "oracleId": 17,
+      "valid": true
+    },
+    "totalSupply": "3883739553803806",
+    "totalBorrow": "144718711475579",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "600000000000000000000000000",
+        "jumpRateMultiplier": "8000000000000000000000000000",
+        "optimalUtilization": "300000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.45"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.061",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.061",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "2.29",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "2.29",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "f16e6b723f242ec745dfd7634ad072c42d5c1d9ac9d62a39c381303eaa57693a::fdusd::FDUSD",
+    "currentBorrowIndex": "1111696631540888203836939315",
+    "currentBorrowRate": "99844425708879480381657982",
+    "currentSupplyIndex": "1026695283310986645358454834",
+    "currentSupplyRate": "41472400497433164245317184",
+    "id": 16,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "700000000000000000000000000",
+    "oracleId": 16,
+    "supplyCapCeiling": "2e+33",
+    "treasuryBalance": "19093110747",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xf16e6b723f242ec745dfd7634ad072c42d5c1d9ac9d62a39c381303eaa57693a::fdusd::FDUSD",
+    "totalSupplyAmount": "45387540612626",
+    "minimumAmount": "200000",
+    "leftSupply": "1954612.459387374",
+    "validBorrowAmount": "40848786551363.4",
+    "borrowedAmount": "25137218936216",
+    "leftBorrowAmount": "40848786526226.4",
+    "availableBorrow": "15711567615147.4",
+    "contract": {
+      "reserveId": "0xf1737d6c6c1fffdf145c440a9fc676de0e6d0ffbacaab5fa002d30653f235a8e",
+      "pool": "0x38d8ac76efc14035bbc8c8b38803f5bd012a0f117d9a0bad2103f8b2c6675b66",
+      "rewardFundId": "0x958dd7ad70755b10f96693bcd591d7a2cb9830a6c523baf43b3b5897664aa788"
+    },
+    "token": {
+      "coinType": "0xf16e6b723f242ec745dfd7634ad072c42d5c1d9ac9d62a39c381303eaa57693a::fdusd::FDUSD",
+      "decimals": 6,
+      "logoUri": "https://cdn.1stdigital.com/icon/fdusd.svg",
+      "symbol": "FDUSD"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "997739",
+      "price": "0.997739",
+      "oracleId": 16,
+      "valid": true
+    },
+    "totalSupply": "44207411244996",
+    "totalBorrow": "22611581453993",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "90000000000000000000000000",
+        "jumpRateMultiplier": "5000000000000000000000000000",
+        "optimalUtilization": "850000000000000000000000000",
+        "reserveFactor": "250000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.75"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "4.147",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "4.147",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "9.984",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "9.984",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "700000000000000000000000000",
+    "coinType": "deeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+    "currentBorrowIndex": "1182120145307211427550907043",
+    "currentBorrowRate": "338922277668063130502914907",
+    "currentSupplyIndex": "1034859884574663493455225313",
+    "currentSupplyRate": "82628655645817725648580619",
+    "id": 15,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "470000000000000000000000000",
+    "oracleId": 15,
+    "supplyCapCeiling": "3.5e+35",
+    "treasuryBalance": "417595210381147",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+    "totalSupplyAmount": "289053032019033362",
+    "minimumAmount": "35000000",
+    "leftSupply": "60946967.9809666",
+    "validBorrowAmount": "202337122413323353.4",
+    "borrowedAmount": "100672316001234740",
+    "leftBorrowAmount": "202337122312651037.4",
+    "availableBorrow": "101664806412088613.4",
+    "contract": {
+      "reserveId": "0x0b30fe8f42a4fda168c38d734e42a36a77b3d4dd6669069b1cbe53a0c3905ba8",
+      "pool": "0x08373c5efffd07f88eace1c76abe4777489d9ec044fd4cd567f982d9c169e946",
+      "rewardFundId": "0xc889d78b634f954979e80e622a2ae0fece824c0f6d9590044378a2563035f32f"
+    },
+    "token": {
+      "coinType": "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+      "decimals": 6,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/DEEP_BlueBackground.png/public",
+      "symbol": "DEEP"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "136260",
+      "price": "0.13626",
+      "oracleId": 15,
+      "valid": true
+    },
+    "totalSupply": "279316104844315903",
+    "totalBorrow": "85162507720458350",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "100000000000000000000000000",
+        "multiplier": "686000000000000000000000000",
+        "jumpRateMultiplier": "10000000000000000000000000000",
+        "optimalUtilization": "700000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.5"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "8.262",
+      "boostedApr": "17.9062",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP"
+      ],
+      "apy": "26.168",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "33.892",
+      "boostedApr": "22.0337",
+      "rewardCoin": [
+        "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "11.858",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "500000000000000000000000000",
+    "coinType": "5f496ed5d9d045c5b788dc1bb85f54100f2ede11e46f6a232c29daada4c5bdb6::coin::COIN",
+    "currentBorrowIndex": "1014396041875066188802219995",
+    "currentBorrowRate": "706639990052655790817758096",
+    "currentSupplyIndex": "1000368550947203350828804260",
+    "currentSupplyRate": "8636648153658262052723806",
+    "id": 14,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "500000000000000000000000000",
+    "oracleId": 14,
+    "supplyCapCeiling": "1e+28",
+    "treasuryBalance": "14677914",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x5f496ed5d9d045c5b788dc1bb85f54100f2ede11e46f6a232c29daada4c5bdb6::coin::COIN",
+    "totalSupplyAmount": "1265028993",
+    "minimumAmount": "1",
+    "leftSupply": "8.734971007",
+    "validBorrowAmount": "632514496.5",
+    "borrowedAmount": "773101933",
+    "leftBorrowAmount": "632514495.5",
+    "availableBorrow": "0",
+    "contract": {
+      "reserveId": "0x9634f9f7f8ea7236e2ad5bfbecdce9673c811a34cf8c3741edfbcaf5d9409100",
+      "pool": "0xd96dcd6982c45e580c83ff1d96c2b4455a874c284b637daf67c0787f25bc32dd"
+    },
+    "token": {
+      "coinType": "0x5f496ed5d9d045c5b788dc1bb85f54100f2ede11e46f6a232c29daada4c5bdb6::coin::COIN",
+      "decimals": 8,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/stBTC.png/public",
+      "symbol": "stBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 14,
+      "valid": true
+    },
+    "totalSupply": "1264562937",
+    "totalBorrow": "762130274",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "980000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.6"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.863",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.863",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "70.663",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "70.663",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "600000000000000000000000000",
+    "coinType": "5145494a5f5100e645e4b0aa950fa6b68f614e8c59e17bc5ded3495123a79178::ns::NS",
+    "currentBorrowIndex": "1120579807443522400881117253",
+    "currentBorrowRate": "119479599058055332528427925",
+    "currentSupplyIndex": "1012382624943942725324416673",
+    "currentSupplyRate": "4072975699219216039502137",
+    "id": 13,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "470000000000000000000000000",
+    "oracleId": 13,
+    "supplyCapCeiling": "4.5e+34",
+    "treasuryBalance": "4946829706562",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x5145494a5f5100e645e4b0aa950fa6b68f614e8c59e17bc5ded3495123a79178::ns::NS",
+    "totalSupplyAmount": "29373094978669254",
+    "minimumAmount": "4500000",
+    "leftSupply": "15626905.021330748",
+    "validBorrowAmount": "17623856987201552.4",
+    "borrowedAmount": "1430441010129089",
+    "leftBorrowAmount": "17623856985771111.4",
+    "availableBorrow": "16193415977072463.4",
+    "contract": {
+      "reserveId": "0x03f405f4d5ed2688b8b7ab4cfbf3e0a8572622a737d615db829342131f3586f2",
+      "pool": "0x2fcc6245f72795fad50f17c20583f8c6e81426ab69d7d3590420571364d080d4",
+      "rewardFundId": "0xc6b14b4eda9015ca69ec5f6a9688faa4f760259ce285dafe902ebe6700f5838f"
+    },
+    "token": {
+      "coinType": "0x5145494a5f5100e645e4b0aa950fa6b68f614e8c59e17bc5ded3495123a79178::ns::NS",
+      "decimals": 6,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/suins.svg/public",
+      "symbol": "NS"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "125296",
+      "price": "0.125296",
+      "oracleId": 13,
+      "valid": true
+    },
+    "totalSupply": "29013827632902817",
+    "totalBorrow": "1276518638500617",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "100000000000000000000000000",
+        "multiplier": "400000000000000000000000000",
+        "jumpRateMultiplier": "3000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.5"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.407",
+      "boostedApr": "29.2182",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+        "0x5145494a5f5100e645e4b0aa950fa6b68f614e8c59e17bc5ded3495123a79178::ns::NS"
+      ],
+      "apy": "29.625",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "11.947",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "11.947",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "960b531667636f39e85867775f52f6b1f220a058c4de786905bdf761e06a56bb::usdy::USDY",
+    "currentBorrowIndex": "1045330411637412759240033354",
+    "currentBorrowRate": "70958933258470838885235272",
+    "currentSupplyIndex": "1013310745037976190045608093",
+    "currentSupplyRate": "12393529552138141669731830",
+    "id": 12,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "700000000000000000000000000",
+    "oracleId": 12,
+    "supplyCapCeiling": "1e+34",
+    "treasuryBalance": "664668758096",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x960b531667636f39e85867775f52f6b1f220a058c4de786905bdf761e06a56bb::usdy::USDY",
+    "totalSupplyAmount": "4646075191722961",
+    "minimumAmount": "1000000",
+    "leftSupply": "5353924.808277039",
+    "validBorrowAmount": "4181467672550664.9",
+    "borrowedAmount": "1081968054775512",
+    "leftBorrowAmount": "4181467671468696.9",
+    "availableBorrow": "3099499617775152.9",
+    "contract": {
+      "reserveId": "0xddeb55afe4860995d755fddb0b1dfb8f8011ca08edb66e43c867a21bd6e0551a",
+      "pool": "0x4b6253a9f8cf7f5d31e6d04aed4046b9e325a1681d34e0eff11a8441525d4563"
+    },
+    "token": {
+      "coinType": "0x960b531667636f39e85867775f52f6b1f220a058c4de786905bdf761e06a56bb::usdy::USDY",
+      "decimals": 6,
+      "logoUri": "https://ondo.finance/images/tokens/usdy.svg",
+      "symbol": "USDY"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "1104487",
+      "price": "1.104487",
+      "oracleId": 12,
+      "valid": true
+    },
+    "totalSupply": "4585044829016235",
+    "totalBorrow": "1035048863718324",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "90000000000000000000000000",
+        "jumpRateMultiplier": "5000000000000000000000000000",
+        "optimalUtilization": "850000000000000000000000000",
+        "reserveFactor": "250000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.08",
+      "ratio": "0.35",
+      "threshold": "0.75"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "1.239",
+      "boostedApr": "5.6491",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "11.088",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "4.2"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "7.095",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "7.095",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "d0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH",
+    "currentBorrowIndex": "1027256231821399398081251034",
+    "currentBorrowRate": "7045312111441715758490487",
+    "currentSupplyIndex": "1010222183700201760474274672",
+    "currentSupplyRate": "496364227476273270870202",
+    "id": 11,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "750000000000000000000000000",
+    "oracleId": 11,
+    "supplyCapCeiling": "8.5e+30",
+    "treasuryBalance": "30520923",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH",
+    "totalSupplyAmount": "3604448118616",
+    "minimumAmount": "850",
+    "leftSupply": "4895.551881384",
+    "validBorrowAmount": "3244003306754.4",
+    "borrowedAmount": "317430782252",
+    "leftBorrowAmount": "3244003306437.4",
+    "availableBorrow": "2926572524502.4",
+    "contract": {
+      "reserveId": "0x376faea6dfbffab9ea808474cb751d91222b6d664f38c0f1d23de442a8edb1ce",
+      "pool": "0x78ba01c21d8301be15690d3c30dc9f111871e38cfb0b2dd4b70cc6052fba41bb",
+      "rewardFundId": "0xfb0de07cd39509ecb312464daa9442fac0eb4487d7a9b984cdfc39c1fb7d2791"
+    },
+    "token": {
+      "coinType": "0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH",
+      "decimals": 8,
+      "logoUri": "https://bridge-assets.sui.io/eth.png",
+      "symbol": "suiETH"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "429013756381",
+      "price": "4290.13756381",
+      "oracleId": 11,
+      "valid": true
+    },
+    "totalSupply": "3567975616427",
+    "totalBorrow": "309008378259",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "750000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.8"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.049",
+      "boostedApr": "3.2326",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "3.281",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.704",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.704",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "960000000000000000000000000",
+    "coinType": "dba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+    "currentBorrowIndex": "1123612409334384198801400468",
+    "currentBorrowRate": "116442113159704442884358785",
+    "currentSupplyIndex": "1067050447830084621002142038",
+    "currentSupplyRate": "83188706249107146655944669",
+    "id": 10,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "800000000000000000000000000",
+    "oracleId": 10,
+    "supplyCapCeiling": "1.2e+35",
+    "treasuryBalance": "67922626801233",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+    "totalSupplyAmount": "80422777303992642",
+    "minimumAmount": "12000000",
+    "leftSupply": "39577222.69600736",
+    "validBorrowAmount": "77205866211832936.32",
+    "borrowedAmount": "71819664970237220",
+    "leftBorrowAmount": "77205866140013271.32",
+    "availableBorrow": "5386201241595716.32",
+    "contract": {
+      "reserveId": "0x4c8a2c72a22ae8da803a8519798d312c86e74a9e0d6ec0eec2bfcf7e4b3fef5e",
+      "pool": "0xa3582097b4c57630046c0c49a88bfc6b202a3ec0a9db5597c31765f7563755a8"
+    },
+    "token": {
+      "coinType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "decimals": 6,
+      "logoUri": "https://circle.com/usdc-icon",
+      "symbol": "USDC"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "999789",
+      "price": "0.999789",
+      "oracleId": 10,
+      "valid": true
+    },
+    "totalSupply": "75369236260138878",
+    "totalBorrow": "63918540213330690",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "45000000000000000000000000",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "4500000000000000000000000000",
+        "optimalUtilization": "900000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.08",
+      "ratio": "0.35",
+      "threshold": "0.85"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "8.318",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "8.318",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "11.644",
+      "boostedApr": "4.3759",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "7.268",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "2053d08c1e2bd02791056171aab0fd12bd7cd7efad2ab8f6b9c8902f14df2ff2::ausd::AUSD",
+    "currentBorrowIndex": "1110707315050809751010775056",
+    "currentBorrowRate": "195744766732763649801228833",
+    "currentSupplyIndex": "1053209265499403854083062094",
+    "currentSupplyRate": "111254966792093706847425320",
+    "id": 9,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "800000000000000000000000000",
+    "oracleId": 9,
+    "supplyCapCeiling": "2.5e+33",
+    "treasuryBalance": "13570628178",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x2053d08c1e2bd02791056171aab0fd12bd7cd7efad2ab8f6b9c8902f14df2ff2::ausd::AUSD",
+    "totalSupplyAmount": "11825398059606",
+    "minimumAmount": "250000",
+    "leftSupply": "2488174.601940394",
+    "validBorrowAmount": "10642858253645.4",
+    "borrowedAmount": "9601793362129",
+    "leftBorrowAmount": "10642858244043.4",
+    "availableBorrow": "1041064891516.4",
+    "contract": {
+      "reserveId": "0x918889c6a9d9b93108531d4d59a4ebb9cc4d41689798ffc1d4aed6e1ae816ec0",
+      "pool": "0xc9208c1e75f990b2c814fa3a45f1bf0e85bb78404cfdb2ae6bb97de58bb30932"
+    },
+    "token": {
+      "coinType": "0x2053d08c1e2bd02791056171aab0fd12bd7cd7efad2ab8f6b9c8902f14df2ff2::ausd::AUSD",
+      "decimals": 6,
+      "logoUri": "https://static.agora.finance/ausd-token-icon.svg",
+      "symbol": "AUSD"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "1000003",
+      "price": "1.000003",
+      "oracleId": 9,
+      "valid": true
+    },
+    "totalSupply": "11227966223786",
+    "totalBorrow": "8644755672371",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "100000000000000000000000000",
+        "jumpRateMultiplier": "5500000000000000000000000000",
+        "optimalUtilization": "800000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.85"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "11.125",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "11.125",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "19.574",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "19.574",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "700000000000000000000000000",
+    "coinType": "027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
+    "currentBorrowIndex": "1007939975350303937062378348",
+    "currentBorrowRate": "8725259514261856100980240",
+    "currentSupplyIndex": "1000769693036516983971426671",
+    "currentSupplyRate": "666138843923149109352194",
+    "id": 8,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "400000000000000000000000000",
+    "oracleId": 8,
+    "supplyCapCeiling": "3e+28",
+    "treasuryBalance": "2406",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
+    "totalSupplyAmount": "930421505",
+    "minimumAmount": "3",
+    "leftSupply": "29.069578495",
+    "validBorrowAmount": "651295053.5",
+    "borrowedAmount": "101478441",
+    "leftBorrowAmount": "651295053.5",
+    "availableBorrow": "549816612.5",
+    "contract": {
+      "reserveId": "0x8b4d81f004e4e9faf4540951a896b6d96e42598a270e6375f598b99742db767e",
+      "pool": "0xd162cbe40f8829ce71c9b3d3bf3a83859689a79fa220b23d70dc0300b777ae6e"
+    },
+    "token": {
+      "coinType": "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
+      "decimals": 8,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/wbtc.png/public",
+      "symbol": "WBTC"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "11164277857372",
+      "price": "111642.77857372",
+      "oracleId": 8,
+      "valid": true
+    },
+    "totalSupply": "929705917",
+    "totalBorrow": "100679052",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "80000000000000000000000000",
+        "jumpRateMultiplier": "6000000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.45"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.066",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.066",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.872",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.872",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "50000000000000000000000000",
+    "coinType": "a99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX",
+    "currentBorrowIndex": "1061770247913947711464874928",
+    "currentBorrowRate": "24339845884274207325891809",
+    "currentSupplyIndex": "1003483565411450096415259819",
+    "currentSupplyRate": "592428097670220069561016",
+    "id": 7,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "450000000000000000000000000",
+    "oracleId": 7,
+    "supplyCapCeiling": "2e+35",
+    "treasuryBalance": "1064942147561",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xa99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX",
+    "totalSupplyAmount": "188622797872312536",
+    "minimumAmount": "20000000",
+    "leftSupply": "11377202.12768745",
+    "validBorrowAmount": "9431139893615626.8",
+    "borrowedAmount": "5738812820611494",
+    "leftBorrowAmount": "9431139887876813.8",
+    "availableBorrow": "3692327073004132.8",
+    "contract": {
+      "reserveId": "0x2e13b2f1f714c0c5fa72264f147ef7632b48ec2501f810c07df3ccb59d6fdc81",
+      "pool": "0xc0e02e7a245e855dd365422faf76f87d9f5b2148a26d48dda6e8253c3fe9fa60",
+      "rewardFundId": "0x1a3f9fcfdfac10e92c99220203f7c4bb502558692f0be0f2cb5f788b4e12a6b5"
+    },
+    "token": {
+      "coinType": "0xa99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/navi-new.jpeg/public",
+      "symbol": "NAVX"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "38311580",
+      "price": "0.03831158",
+      "oracleId": 7,
+      "valid": true
+    },
+    "totalSupply": "187967999052354270",
+    "totalBorrow": "5404947851841298",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "800000000000000000000000000",
+        "jumpRateMultiplier": "10000000000000000000000000000",
+        "optimalUtilization": "100000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.05",
+      "ratio": "0.35",
+      "threshold": "0.55"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.059",
+      "boostedApr": "9.9102",
+      "rewardCoin": [
+        "0xa99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX"
+      ],
+      "apy": "9.969",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "2.433",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "2.433",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "850000000000000000000000000",
+    "coinType": "bde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d::hasui::HASUI",
+    "currentBorrowIndex": "1088847525974070923847009096",
+    "currentBorrowRate": "4098011181411422083993017",
+    "currentSupplyIndex": "1024538949422380892945012332",
+    "currentSupplyRate": "100787370700513364511908",
+    "id": 6,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "700000000000000000000000000",
+    "oracleId": 6,
+    "supplyCapCeiling": "4e+34",
+    "treasuryBalance": "33044568733",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xbde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d::hasui::HASUI",
+    "totalSupplyAmount": "33304139988613799",
+    "minimumAmount": "4000000",
+    "leftSupply": "6695860.0113862",
+    "validBorrowAmount": "28308518990321729.15",
+    "borrowedAmount": "1023861502893258",
+    "leftBorrowAmount": "28308518989297867.15",
+    "availableBorrow": "27284657487428471.15",
+    "contract": {
+      "reserveId": "0x0c9f7a6ca561dc566bd75744bcc71a6af1dc3caf7bd32c099cd640bb5f3bb0e3",
+      "pool": "0x6fd9cb6ebd76bc80340a9443d72ea0ae282ee20e2fd7544f6ffcd2c070d9557a"
+    },
+    "token": {
+      "coinType": "0xbde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d::hasui::HASUI",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/hasui.svg/public",
+      "symbol": "haSUI"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "3480048760",
+      "price": "3.48004876",
+      "oracleId": 6,
+      "valid": true
+    },
+    "totalSupply": "32506465476388335",
+    "totalBorrow": "940316691244096",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "133300000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "750000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.75"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.01",
+      "boostedApr": "2.3293",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "4.491",
+      "voloApy": "0",
+      "stakingYieldApy": "2.152505833540319",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.409",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.409",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "850000000000000000000000000",
+    "coinType": "549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+    "currentBorrowIndex": "1087186231902189869420739332",
+    "currentBorrowRate": "13836654009618978780455948",
+    "currentSupplyIndex": "1021193391277363302402914664",
+    "currentSupplyRate": "1149005216395528657341615",
+    "id": 5,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "750000000000000000000000000",
+    "oracleId": 5,
+    "supplyCapCeiling": "1.5e+34",
+    "treasuryBalance": "98554969684",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+    "totalSupplyAmount": "8679032233613428",
+    "minimumAmount": "1500000",
+    "leftSupply": "6320967.766386572",
+    "validBorrowAmount": "7377177398571413.8",
+    "borrowedAmount": "900891012829651",
+    "leftBorrowAmount": "7377177397670522.8",
+    "availableBorrow": "6476286385741762.8",
+    "contract": {
+      "reserveId": "0xd4fd7e094af9819b06ea3136c13a6ae8da184016b78cf19773ac26d2095793e2",
+      "pool": "0x9790c2c272e15b6bf9b341eb531ef16bcc8ed2b20dfda25d060bf47f5dd88d01",
+      "rewardFundId": "0x7093cf7549d5e5b35bfde2177223d1050f71655c7f676a5e610ee70eb4d93b5c"
+    },
+    "token": {
+      "coinType": "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/vSUI.png/public",
+      "symbol": "vSUI"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "3485815140",
+      "price": "3.48581514",
+      "oracleId": 5,
+      "valid": true
+    },
+    "totalSupply": "8498911477244511",
+    "totalBorrow": "828644611561546",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "133300000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "750000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.8"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.114",
+      "boostedApr": "0.0825",
+      "rewardCoin": [
+        "0xa99b8952d4f7d947ea77fe0ecdcc9e5fc0bcab2841d6e2a5aa00c3044e5544b5::navx::NAVX"
+      ],
+      "apy": "2.12",
+      "voloApy": "0",
+      "stakingYieldApy": "1.9244409872119332",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "1.383",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "1.383",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "600000000000000000000000000",
+    "coinType": "06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+    "currentBorrowIndex": "1174097721185832648949333257",
+    "currentBorrowRate": "61837974707007292435102332",
+    "currentSupplyIndex": "1042835411201152728848357180",
+    "currentSupplyRate": "6691886452762828860696686",
+    "id": 4,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "500000000000000000000000000",
+    "oracleId": 4,
+    "supplyCapCeiling": "1.2e+34",
+    "treasuryBalance": "876556966571",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+    "totalSupplyAmount": "8809967585003231",
+    "minimumAmount": "1200000",
+    "leftSupply": "3190032.41499677",
+    "validBorrowAmount": "5285980551001938.6",
+    "borrowedAmount": "1361987630068857",
+    "leftBorrowAmount": "5285980549639950.6",
+    "availableBorrow": "3923992920933081.6",
+    "contract": {
+      "reserveId": "0x66a807c06212537fe46aa6719a00e4fa1e85a932d0b53ce7c4b1041983645133",
+      "pool": "0x3c376f857ec4247b8ee456c1db19e9c74e0154d4876915e54221b5052d5b1e2e"
+    },
+    "token": {
+      "coinType": "0x06864a6f921804860930db6ddbe2e16acdf8504495ea7481637a1c8b9a8fe54b::cetus::CETUS",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/cetus.jpeg/public",
+      "symbol": "CETUS"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "93870080",
+      "price": "0.09387008",
+      "oracleId": 4,
+      "valid": true
+    },
+    "totalSupply": "8448090168759981",
+    "totalBorrow": "1160029191346404",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "400000000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "500000000000000000000000000",
+        "reserveFactor": "300000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.55"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.669",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.669",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "6.183",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "6.183",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "af8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
+    "currentBorrowIndex": "1030684304241165180749209408",
+    "currentBorrowRate": "8839360348670656283306031",
+    "currentSupplyIndex": "1008196907538490999506771314",
+    "currentSupplyRate": "1172747337690822157148736",
+    "id": 3,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "750000000000000000000000000",
+    "oracleId": 3,
+    "supplyCapCeiling": "2e+30",
+    "treasuryBalance": "7817966",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
+    "totalSupplyAmount": "779169037461",
+    "minimumAmount": "200",
+    "leftSupply": "1220.830962539",
+    "validBorrowAmount": "701252133714.9",
+    "borrowedAmount": "129220416494",
+    "leftBorrowAmount": "701252133585.9",
+    "availableBorrow": "572031717220.9",
+    "contract": {
+      "reserveId": "0xafecf4b57899d377cc8c9de75854c68925d9f512d0c47150ca52a0d3a442b735",
+      "pool": "0x71b9f6e822c48ce827bceadce82201d6a7559f7b0350ed1daa1dc2ba3ac41b56"
+    },
+    "token": {
+      "coinType": "0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN",
+      "decimals": 8,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/weth.jpg/public",
+      "symbol": "WETH"
+    },
+    "oracle": {
+      "decimal": 8,
+      "value": "429013756381",
+      "price": "4290.13756381",
+      "oracleId": 3,
+      "valid": true
+    },
+    "totalSupply": "772834187087",
+    "totalBorrow": "125373420321",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "53300000000000000000000000",
+        "jumpRateMultiplier": "3200000000000000000000000000",
+        "optimalUtilization": "750000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.8"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "0.117",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.117",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "0.883",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "0.883",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "c060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+    "currentBorrowIndex": "1307885059036785985384313921",
+    "currentBorrowRate": "205202308780450902475937215",
+    "currentSupplyIndex": "1130771074682082326631619927",
+    "currentSupplyRate": "133238956167752522085918177",
+    "id": 2,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "800000000000000000000000000",
+    "oracleId": 2,
+    "supplyCapCeiling": "1e+34",
+    "treasuryBalance": "1713096724559",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+    "totalSupplyAmount": "1808195061525373",
+    "minimumAmount": "1000000",
+    "leftSupply": "8191804.938474627",
+    "validBorrowAmount": "1627375555372835.7",
+    "borrowedAmount": "1565435019289147",
+    "leftBorrowAmount": "1627375553807400.7",
+    "availableBorrow": "61940536083688.7",
+    "contract": {
+      "reserveId": "0xb8c5eab02a0202f638958cc79a69a2d30055565caad1684b3c8bbca3bddcb322",
+      "pool": "0x0e060c3b5b8de00fb50511b7a45188c8e34b6995c01f69d98ea5a466fe10d103"
+    },
+    "token": {
+      "coinType": "0xc060006111016b8a020ad5b33834984a437aaa7d3c74c18e09a95d48aceab08c::coin::COIN",
+      "decimals": 6,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/images.png/public",
+      "symbol": "wUSDT"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "1000002",
+      "price": "1.000002",
+      "oracleId": 2,
+      "valid": true
+    },
+    "totalSupply": "1599081460439505",
+    "totalBorrow": "1196920943834344",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "90000000000000000000000000",
+        "jumpRateMultiplier": "5000000000000000000000000000",
+        "optimalUtilization": "850000000000000000000000000",
+        "reserveFactor": "250000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.08",
+      "ratio": "0.35",
+      "threshold": "0.85"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "13.323",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "13.323",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "20.52",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "20.52",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "900000000000000000000000000",
+    "coinType": "5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+    "currentBorrowIndex": "1268644239595625632785543986",
+    "currentBorrowRate": "227093431890483054625337765",
+    "currentSupplyIndex": "1112034263925252007989537309",
+    "currentSupplyRate": "148198678981230651267749564",
+    "id": 1,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "800000000000000000000000000",
+    "oracleId": 1,
+    "supplyCapCeiling": "1e+34",
+    "treasuryBalance": "2979783307270",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+    "totalSupplyAmount": "2704879381214898",
+    "minimumAmount": "1000000",
+    "leftSupply": "7295120.618785102",
+    "validBorrowAmount": "2434391443093408.2",
+    "borrowedAmount": "2353570142106941",
+    "leftBorrowAmount": "2434391440739838.2",
+    "availableBorrow": "80821300986467.2",
+    "contract": {
+      "reserveId": "0xeb3903f7748ace73429bd52a70fff278aac1725d3b58afa781f25ce3450ac203",
+      "pool": "0xa02a98f9c88db51c6f5efaaf2261c81f34dd56d86073387e0ef1805ca22e39c8"
+    },
+    "token": {
+      "coinType": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+      "decimals": 6,
+      "logoUri": "https://app.naviprotocol.io/imgs/token/wusdc.svg",
+      "symbol": "wUSDC"
+    },
+    "oracle": {
+      "decimal": 6,
+      "value": "999789",
+      "price": "0.999789",
+      "oracleId": 1,
+      "valid": true
+    },
+    "totalSupply": "2432370538356643",
+    "totalBorrow": "1855185298328498",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "50000000000000000000000000",
+        "multiplier": "90000000000000000000000000",
+        "jumpRateMultiplier": "5000000000000000000000000000",
+        "optimalUtilization": "850000000000000000000000000",
+        "reserveFactor": "250000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.08",
+      "ratio": "0.35",
+      "threshold": "0.85"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "14.819",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "14.819",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "22.709",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "22.709",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  },
+  {
+    "borrowCapCeiling": "800000000000000000000000000",
+    "coinType": "0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "currentBorrowIndex": "1174105562916973654234613688",
+    "currentBorrowRate": "75830066490405156692909282",
+    "currentSupplyIndex": "1064095831689650928066705964",
+    "currentSupplyRate": "30667727914342757536130789",
+    "id": 0,
+    "isIsolated": false,
+    "lastUpdateTimestamp": "1757428635294",
+    "ltv": "750000000000000000000000000",
+    "oracleId": 0,
+    "supplyCapCeiling": "5.5e+34",
+    "treasuryBalance": "10592699902703",
+    "treasuryFactor": "550000000000000000000000000",
+    "suiCoinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+    "totalSupplyAmount": "37060703654131300",
+    "minimumAmount": "5500000",
+    "leftSupply": "17939296.3458687",
+    "validBorrowAmount": "29648562923305040",
+    "borrowedAmount": "18735437882792760",
+    "leftBorrowAmount": "29648562904569602",
+    "availableBorrow": "10913125040512280",
+    "contract": {
+      "reserveId": "0xab644b5fd11aa11e930d1c7bc903ef609a9feaf9ffe1b23532ad8441854fbfaf",
+      "pool": "0x96df0fce3c471489f4debaaa762cf960b3d97820bd1f3f025ff8190730e958c5"
+    },
+    "token": {
+      "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+      "decimals": 9,
+      "logoUri": "https://imagedelivery.net/cBNDGgkrsEA-b_ixIp9SkQ/sui-coin.svg/public",
+      "symbol": "SUI"
+    },
+    "oracle": {
+      "decimal": 9,
+      "value": "3485815140",
+      "price": "3.48581514",
+      "oracleId": 0,
+      "valid": true
+    },
+    "totalSupply": "34828351498458126",
+    "totalBorrow": "15957200506099321",
+    "borrowRateFactors": {
+      "fields": {
+        "baseRate": "0",
+        "multiplier": "150000000000000000000000000",
+        "jumpRateMultiplier": "3000000000000000000000000000",
+        "optimalUtilization": "700000000000000000000000000",
+        "reserveFactor": "200000000000000000000000000"
+      }
+    },
+    "liquidationFactor": {
+      "bonus": "0.1",
+      "ratio": "0.35",
+      "threshold": "0.8"
+    },
+    "supplyIncentiveApyInfo": {
+      "vaultApr": "3.066",
+      "boostedApr": "0",
+      "rewardCoin": [],
+      "apy": "3.066",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    },
+    "borrowIncentiveApyInfo": {
+      "vaultApr": "7.583",
+      "boostedApr": "8.3974",
+      "rewardCoin": [
+        "0x549e8b69270defbfafd4f94e17ec44cdbdd99820b33bda2278dea3b9a32d3f55::cert::CERT"
+      ],
+      "apy": "-0.814",
+      "voloApy": "0",
+      "stakingYieldApy": "0",
+      "treasuryApy": "0"
+    }
+  }
+]
