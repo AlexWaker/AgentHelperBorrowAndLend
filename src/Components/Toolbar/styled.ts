@@ -5,6 +5,7 @@ export const ToolBarContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-family: var(--pixel-font-primary);
   gap: 32px;
   padding: 14px 28px;
   position: relative;
@@ -64,9 +65,11 @@ export const ToolBarContainer = styled.div`
 `;
 
 export const WelcomeText = styled.div`
-  font-size: clamp(18px, 1.4vw, 22px);
-  font-weight: 650;
-  letter-spacing: .5px;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-family: var(--pixel-font-primary);
   background: linear-gradient(110deg,#e8fff2 0%,#b6ffe0 30%,#74ffc7 55%,#34f5a2 75%,#e8fff2 100%);
   background-clip: text;
   -webkit-background-clip: text;
@@ -90,5 +93,21 @@ export const WelcomeText = styled.div`
   @keyframes pulseDot {
     0%, 100% { transform: scale(1); opacity: 0.85; }
     50% { transform: scale(1.4); opacity: 0.4; }
+  }
+`;
+
+export const TypingCursor = styled.span`
+  display: inline-block;
+  width: 14px;
+  height: 26px;
+  margin-left: 4px;
+  background: linear-gradient(120deg,#0affb6,#34f5a2);
+  box-shadow: 0 0 6px rgba(0,255,170,0.65), 0 0 14px -2px rgba(0,200,140,0.55);
+  animation: blinkCursor 0.9s steps(1,end) infinite;
+  border-radius: 2px;
+
+  @keyframes blinkCursor {
+    0%, 55% { opacity: 1; }
+    56%, 100% { opacity: 0; }
   }
 `;

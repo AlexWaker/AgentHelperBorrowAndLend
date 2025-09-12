@@ -1,6 +1,7 @@
-export const intentTypeTs = {
+export const intentType = {
     QUERY_BALANCE: "QUERY_BALANCE",
     TRANSFER: "TRANSFER",
     QUERY_POOLS: "QUERY_POOLS",
+    DEPOSIT: "DEPOSIT",
     OTHER: "OTHER"
 };

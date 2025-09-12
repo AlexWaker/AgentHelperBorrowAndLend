@@ -22,29 +22,27 @@ const ChatWindow: React.FC = () => {
   const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
   const isWalletConnected = !!currentAccount;
   const walletAddress = currentAccount?.address;
-  const welcomeString = (isWalletConnected: boolean) => `👋 欢迎使用 AI 区块链助手！
-        我可以帮助您：
-        • 💬 日常聊天和问答
-        • 🔗 区块链知识解答
-        • 💰 Sui 钱包操作指导（需要连接钱包）
-        • 🎯 DeFi 和 NFT 相关咨询
-        ${isWalletConnected 
-          ? `🎉 检测到您已连接钱包！我可以为您提供更专业的区块链服务。` 
-          : `💡 提示：连接钱包后，我可以帮您进行更多区块链操作！`
-        }
-        有什么我可以帮助您的吗？`;
-  // 初始化欢迎消息
+  const welcomeString = (isWalletConnected: boolean) => (
+`👋 欢迎使用 AI 区块链助手！\n我可以帮助您：\n• 💬 日常聊天和问答\n• 🔗 区块链知识解答\n• 💰 Sui 钱包操作指导（需要连接钱包）\n• 🎯 DeFi 和 NFT 相关咨询\n${isWalletConnected 
+  ? '🎉 检测到您已连接钱包！我可以为您提供更专业的区块链服务。' 
+  : '💡 提示：连接钱包后，我可以帮您进行更多区块链操作！'}\n有什么我可以帮助您的吗？`
+  );
+  // 初始化欢迎消息（延迟加载，避免首屏闪烁；当钱包连接状态变化时若还未有用户消息则替换）
   React.useEffect(() => {
-    if (messages.length === 0) {
-      const welcomeMessage: Message = {
-        id: 'welcome-1',
-        content: welcomeString(isWalletConnected),
-        sender: 'assistant',
-        timestamp: new Date(),
-      };
-      setMessages([welcomeMessage]);
-    }
-  }, [isWalletConnected]); // 当钱包连接状态改变时重新设置欢迎消息
+    if (messages.length > 0) return; // 已有消息则不重复生成
+    const timer = setTimeout(() => {
+      setMessages(prev => {
+        if (prev.length > 0) return prev; // 二次保护
+        return [{
+          id: 'welcome-1',
+          content: welcomeString(isWalletConnected),
+          sender: 'assistant',
+          timestamp: new Date(),
+        }];
+      });
+    }, 100); // 延迟 100ms 后显示
+    return () => clearTimeout(timer);
+  }, [isWalletConnected, messages.length]);
 
   const handleClear = useCallback(() => {
     const welcomeMessage: Message = {
@@ -65,33 +63,19 @@ const ChatWindow: React.FC = () => {
       sender: 'user',
       timestamp: new Date(),
     };
-
-    setMessages(prev => [...prev, userMessage]); // 异步状态，为的是更新UI
+    setMessages(prev => [...prev, userMessage]); 
     setIsLoading(true);
-  // 不再维护单独的 error 状态
-
   try {
-      // 准备对话历史（限制长度避免token超限，只保留最近5轮对话）
       const allMessages = [...messages, userMessage];
-      const conversationHistory = allMessages.slice(-2); // 最近2条消息（约1轮对话），防止把所有的消息都发送过去
-
-      // 使用 Agent 系统处理消息，传入钱包状态
+      const conversationHistory = allMessages.slice(-4); 
       const response = await openAIService.processWithAgent(
         conversationHistory,
         isWalletConnected,
         walletAddress,
         async ({ transaction }) => {
-          // 让钱包签名并执行交易
-          // signAndExecute是拉下钱包让用户授权的操作，这个操作需要金额和发送地址，金额和发送
-          // 地址被后面打包为transaction。提供给signAndExecute
-          /*signAndExecute被写到回调函数里也会在本层起作用吗
-          是的，你的理解完全正确。尽管 signAndExecute 被写在了回调函数里，但它依然会在你当前的代码层级（你自己的应用代码中）起作用。
-          是一个非常关键且巧妙的设计，它体现了回调函数的本质：将执行权暂时交给另一个函数，但最终又会回到你自己的代码中。*/
           return await signAndExecute({ transaction });
         }
       );
-      
-      // 添加 AI 回复
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: response,

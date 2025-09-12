@@ -1,4 +1,4 @@
-import { supportCoin } from "./SupportCoin";
+// import { supportCoin } from "./SupportCoin";
 export const queryCoinPrompt = (walletAddress: string | undefined): string => {
     return `【余额查询任务】
     已确定用户意图为：余额查询
@@ -6,8 +6,7 @@ export const queryCoinPrompt = (walletAddress: string | undefined): string => {
     【查询规则】
     - 如果用户指定了钱包地址，查询该地址的余额
     - 如果用户未指定地址，查询当前连接的钱包：${walletAddress || '未连接'}
-    - 当前支持查询${supportCoin}代币余额
-
+    
     【验证要求】
     请检查以下情况并给出相应处理：
     - 用户同时查询多个钱包地址
@@ -42,7 +41,6 @@ export const queryCoinResultPrompt = (queryResult: any): string => {
     请根据以上查询结果，用友好的语言向用户报告余额信息，包括：
     - 钱包地址（缩略显示）
     - 代币名称及余额
-    - 当前支持查询${supportCoin}四种代币余额
     - 如果查询失败，请说明原因并给出建议
 
     请用专业但友好的语言回复用户。`;

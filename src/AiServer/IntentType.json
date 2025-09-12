@@ -2,5 +2,6 @@
   "QUERY_BALANCE": "查询余额",
   "TRANSFER": "转账",
   "QUERY_POOLS": "查询NAVI资金池信息",
+  "DEPOSIT": "质押",
   "OTHER": "其他"
 }

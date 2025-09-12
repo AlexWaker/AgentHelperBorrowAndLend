@@ -1,4 +1,4 @@
-import { supportCoin } from "./SupportCoin";
+// import { supportCoin } from "./SupportCoin";
 
 export const transferCoinPrompt = (walletAddress: string | undefined): string => {
     return `任务：代币转账
@@ -6,8 +6,7 @@ export const transferCoinPrompt = (walletAddress: string | undefined): string =>
 
     请从用户输入中抽取并校验：
     - toAddress：0x 开头的 Sui 地址
-    - amount：> 0（单位：${supportCoin}）
-    - 当前支持${supportCoin}代币转账
+    - amount：> 0
 
     以下任一情况判定 isValid=false：缺少地址/金额、地址非法或多个地址，提供的地址（如果用户自己提供的话）并非当前钱包地址、金额≤0、非 SUI、未连接且未指定 from、指令含糊。
 
@@ -26,8 +25,7 @@ export const transferCoinPrompt = (walletAddress: string | undefined): string =>
     };
 
 export const transferNotClear = (): string => {
-    return `转账信息不完整。请补充：收款地址(0x...)、金额(${supportCoin})、是否用当前钱包(未连接请先连接)、可选备注。
-示例：给 0xabc...def 转 1.25 ${supportCoin}，备注“测试”。`;
+    return `转账信息不完整。请补充：收款地址(0x...)、金额`;
 }
 
 export const transferResultPrompt = (transferInfo: any): string => {

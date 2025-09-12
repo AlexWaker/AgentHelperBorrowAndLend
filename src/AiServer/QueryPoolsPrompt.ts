@@ -1,5 +1,5 @@
-import { supportCoin } from "./SupportCoin";
-export const queryPoolPrompt = (): string => {
+// import { supportCoin } from "./SupportCoin";
+export const queryPoolPrompt = (queryResult: any): string => {
     return `【查询NAVI池子信息任务】
     已确定用户意图为：查询池子信息
 
@@ -25,12 +25,12 @@ export const queryNotClear = (): string => {
 }
 
 export const queryPoolResultPrompt = (queryResult: any): string => {
-    return `【余额池子完成】
+    return `【查询池子任务】
 
-    查询结果：
+    当前池子信息：
     ${JSON.stringify(queryResult, null, 2)}
 
-    请根据以上查询结果，用友好的语言向用户报告池子信息，其中：
+    其中：
     - symbol表示代币名称
     - id表示池子ID
     - borrowAPY表示借款年化收益率
@@ -38,7 +38,8 @@ export const queryPoolResultPrompt = (queryResult: any): string => {
     - price表示当前价格（USD）
 
     注意事项：
+    - 如果用户查询的信息不包含在当前池子信息内（比如查询当前池子的奖励代币是什么，则礼貌提示用户这些信息当前暂不可查询）
     - 可以提示用户想进一步查询具体池子信息的话可以访问Navi官网https://app.naviprotocol.io/
 
-    请用专业但友好的语言回复用户。`;
+    请用专业但友好的语言回复用户的疑问。`;
 }

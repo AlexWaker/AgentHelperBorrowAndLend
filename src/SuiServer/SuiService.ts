@@ -18,7 +18,7 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 		const client = this.client; // 获取客户端引用
 		const { totalBalance } = await client.getBalance({ // 调用节点接口获取余额
 			owner, // 钱包地址
-			coinType: coinAddress[coin as keyof typeof coinAddress].address, // 币种类型（Type）
+			coinType: coinAddress[coin as keyof typeof coinAddress].coinType, // 币种类型（Type）
 		}); // 结束余额查询调用
 		return totalBalance; // 原样返回字符串，避免精度问题
 	} // 方法结束：getCoinBalance
@@ -52,7 +52,7 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 	}): Promise<Transaction> { // 返回 Transaction 实例
 		const allCoins = await this.client.getCoins({ // 查询发送方持有的该币种的所有 coin 对象
 			owner: params.from, // 发送方地址
-			coinType: coinAddress[params.coin as keyof typeof coinAddress].address, // 币种类型
+			coinType: coinAddress[params.coin as keyof typeof coinAddress].coinType, // 币种类型
 		}); // 结束查询 coin 对象
 		this.assertAddress(params.to); // 校验接收方地址
 		// 2. 检查总余额是否足够
@@ -126,7 +126,7 @@ class SuiService { // 封装与 Sui 节点交互的服务类
 			const sender = txResponse.transaction?.data.sender || ''; // 发送方地址
 			let recipient = ''; // 接收方地址占位
 			let amount = '0'; // 金额占位（最小单位）
-			const coinType = coinAddress[coin as keyof typeof coinAddress].address; // 转发币种
+			const coinType = coinAddress[coin as keyof typeof coinAddress].coinType; // 转发币种
 
 			// 从余额变化中提取转账信息
 			if (txResponse.balanceChanges) { // 若接口返回余额变化

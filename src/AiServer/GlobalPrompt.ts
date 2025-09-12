@@ -1,5 +1,5 @@
 import intentType from './IntentType.json';
-import { supportCoin } from './SupportCoin';
+// import { supportCoin } from './SupportCoin';
 
 export const normalPrompt = (): string => {
   return `你是一个专业的区块链 AI Agent 助手，专注于 Web3 和区块链领域（尤其是Sui领域）。
@@ -9,10 +9,11 @@ export const normalPrompt = (): string => {
     - 对于区块链/Web3 相关问题，请积极详细地回答
     - 回复用户的话尽可能简短
 
-    【现支持的功能】
-    - 查询余额（当前支持${supportCoin}四种代币余额查询）
+    【现支持的Agent功能】
+    - 查询余额
     - 查询NAVI资金池信息（仅支持Navi的所有池子查询，不支持其他任何DeFi项目）
-    - 转账（当前支持${supportCoin}四种代币的转账）`
+    - 转账
+    - 存款`;
 }
 
 export const firstIntentAnalysis = (): string => {

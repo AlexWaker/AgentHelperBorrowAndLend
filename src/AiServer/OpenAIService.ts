@@ -1,17 +1,16 @@
 import OpenAI from 'openai';
 import { Message } from '../Components/Chatwindows/types';
-import { intentTypeTs } from './IntentTypeTs';
+import { intentType } from './IntentType';
 import { normalPrompt, firstIntentAnalysis } from './GlobalPrompt';
-import { queryCoinPrompt, queryCoinResultPrompt } from './QueryPrompt';
+import { queryCoinPrompt, queryCoinResultPrompt } from './QueryCoinPrompt';
 import { suiService } from '../SuiServer/SuiService';
 import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { naviService } from '../NaviServer/NaviService';
-import { queryPoolPrompt, queryPoolResultPrompt } from './QueryPoolsPrompt';
-
+import { queryPoolResultPrompt } from './QueryPoolsPrompt';
+import { depositPrompt, depositNotClear } from './DepositPrompt';
 class OpenAIService {
   private client: OpenAI;
   private model: string;
-
   constructor() {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     const baseURL = import.meta.env.VITE_OPENAI_API_URL || 'https://api.deepseek.com';
@@ -22,7 +21,6 @@ class OpenAIService {
       dangerouslyAllowBrowser: true,
     });
   }
-
   setApiKey(apiKey: string) {
     this.client = new OpenAI({
       baseURL: this.client.baseURL,
@@ -119,64 +117,71 @@ class OpenAIService {
     if (!lastMessage) {
       throw new Error('没有消息需要处理');
     }
-
     try {
       const openAIMessages = this.convertToOpenAIMessages(messages);
-
       const messagesWithSystem: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: 'system', content: normalPrompt() },
         { role: 'system', content: firstIntentAnalysis() },
         ...openAIMessages
       ];
-      
       const content = await this.callOpenAIAPI(messagesWithSystem, '最初始意图分析');
       console.log('最初始意图分析回复:', content);
-
       const parsed = this.extractAndParseJSON<{ intent: string, confidence: number, requiresWallet: boolean, reasoning: string }>(content);
-
       switch (parsed.intent) {
-        case intentTypeTs.QUERY_POOLS: {
-          const poolQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-            { role: 'system', content: queryPoolPrompt() },
-            ...openAIMessages
-          ];
-          const poolContent = await this.callOpenAIAPI(poolQueryMessages, '池子查询');
-          console.log('池子查询回复:', poolContent);
-
-          const poolParsed = this.extractAndParseJSON<{ isValid: boolean, errorMessage: string } & { [key: string]: any }>(poolContent);
-
-          if (poolParsed.isAll) {
-            try {
-              const pools = await naviService.getNaviPoolsSimple();
-              console.log('池子查询结果:', pools);
-              const poolResultMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-                ...openAIMessages,
-                { role: 'user', content: queryPoolResultPrompt(pools) },
-              ];
-              const poolResultContent = await this.callOpenAIAPI(poolResultMessages, '池子查询结果');
-              return poolResultContent;
-            } catch (e) {
-              console.error('获取池子信息失败:', e);
-              return '获取池子信息失败，请稍后重试。';
-            }
-          } else {
-            return poolParsed.errorMessage || '（空回复）';
+        case intentType.QUERY_POOLS: {
+          try{
+            const pools = await naviService.getNaviPoolsSimple();
+            const poolQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: queryPoolResultPrompt(pools) },
+              ...openAIMessages
+            ];
+            const poolContent = await this.callOpenAIAPI(poolQueryMessages, '池子查询');
+            console.log('池子查询回复:', poolContent);
+            return poolContent;
+          }
+          catch(e){
+            console.error('池子查询失败:', e);
+            return '查询池子信息失败，请稍后重试。';
           }
         }
-        case intentTypeTs.QUERY_BALANCE:
+        case intentType.DEPOSIT: {
+          const depositCoinMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: depositPrompt() },
+            ...openAIMessages
+          ];
+          const depositContent = await this.callOpenAIAPI(depositCoinMessages, '存款分析');
+          const depositParsed = this.extractAndParseJSON<{ id: string, symbol: string, amount: number, isValid: Boolean, errorMessage: string, reasoning: string }>(depositContent);
+          if(!depositParsed.isValid){
+            const notClearMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: depositNotClear() },
+              ...openAIMessages,
+              { role: 'user', content: depositParsed.reasoning || '请根据用户最后的输入进行回复。' }
+            ];
+            const notClearContent = await this.callOpenAIAPI(notClearMessages, '存款指令不清晰');
+            return notClearContent || '（空回复）';
+          } else {
+            const poolInfo = await naviService.getNaviPool(depositParsed.id !== 'unknown' ? depositParsed.id : depositParsed.symbol);
+            if(depositParsed.id !== 'unknown' && depositParsed.symbol !== 'unknown'){
+              if(poolInfo.id !== depositParsed.id || poolInfo.symbol !== depositParsed.symbol){
+                return `未找到与 ID "${depositParsed.id}" 和 币种 "${depositParsed.symbol}" 匹配的池子，请确认后重试。`;
+              }
+            } else {
+              console.warn('存款时未提供池子 ID 或 Symbol，可能导致匹配错误');
+            }
+          }
+        }
+        case intentType.QUERY_BALANCE:
           const balanceQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: queryCoinPrompt(walletAddress) },
             ...openAIMessages
           ];
           const balanceContent = await this.callOpenAIAPI(balanceQueryMessages, '余额查询');
-          
           const balanceParsed = this.extractAndParseJSON<{ address: string, coin: string, isValid: boolean, errorMessage: string }>(balanceContent);
-
           if (balanceParsed.isValid) {
             const address = balanceParsed.address;
             try {
-              const balanceMist = await suiService.getCoinBalance(address, balanceParsed.coin.toLowerCase());
-              const balanceSui = suiService.toCoin(balanceParsed.coin.toLowerCase(), balanceMist);
+              const balanceMist = await suiService.getCoinBalance(address, balanceParsed.coin.toUpperCase());
+              const balanceSui = suiService.toCoin(balanceParsed.coin.toUpperCase(), balanceMist);
               const short = address.length > 10 ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
               const queryResult =  `地址 ${short} 的 ${balanceParsed.coin} 余额：${balanceSui} ${balanceParsed.coin}（${balanceMist} MIST）`;
               console.log('查询结果:', queryResult);
@@ -194,7 +199,7 @@ class OpenAIService {
             return balanceParsed.errorMessage || '（空回复）';
           }
 
-        case intentTypeTs.TRANSFER:
+        case intentType.TRANSFER:
           const transferMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: transferCoinPrompt(walletAddress) },
             ...openAIMessages
@@ -216,14 +221,14 @@ class OpenAIService {
               const transferResult = await suiService.transferSui({
                 from: fromAddress,
                 to: toAddress,
-                coin: coin.toLowerCase(),
-                amountMist: suiService.toMist(coin.toLowerCase(), amount),
+                coin: coin.toUpperCase(),
+                amountMist: suiService.toMist(coin.toUpperCase(), amount),
                 signer
               });
 
               if (transferResult?.digest) {
                 try {
-                  const info = await suiService.getTransactionDetails(transferResult.digest, coin.toLowerCase());
+                  const info = await suiService.getTransactionDetails(transferResult.digest, coin.toUpperCase());
 
                   const transferInfo = {
                     digest: info.digest,

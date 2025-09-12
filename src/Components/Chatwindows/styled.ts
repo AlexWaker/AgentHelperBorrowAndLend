@@ -5,6 +5,7 @@ export const ChatContainer = styled.div`
   flex-direction: column;
   height: 100%;
   position: relative;
+  font-family: var(--pixel-font-primary);
   background: radial-gradient(circle at 25% 15%, rgba(0,255,170,0.08), transparent 60%),
               radial-gradient(circle at 80% 70%, rgba(0,180,120,0.06), transparent 65%),
               linear-gradient(140deg, #061d13, #0a2b1c 55%, #0f3a27);
@@ -40,8 +41,8 @@ export const Header = styled.div`
 
 export const Title = styled.h1`
   margin: 0;
-  font-size: 18px;
-  font-weight: 650;
+  font-size: 16px;
+  font-weight: 600;
   background: linear-gradient(110deg,#e8fff2 0%,#b6ffe0 30%,#74ffc7 55%,#34f5a2 75%,#e8fff2 100%);
   background-clip: text;
   -webkit-background-clip: text;
@@ -129,6 +130,7 @@ export const MessageContainer = styled.div`
 
 export const MessageMeta = styled.div<{ $isUser: boolean }>`
   font-size: 11px;
+  font-size: 10px;
   color: ${props => props.$isUser ? '#73eab9' : '#6aa88f'};
   align-self: ${props => props.$isUser ? 'flex-end' : 'flex-start'};
   padding: 0 4px;
@@ -173,7 +175,7 @@ export const InputWrapper = styled.div`
 
 export const TextArea = styled.textarea`
   flex: 1;
-  min-height: 48px;
+  min-height: 52px;
   max-height: 140px;
   padding: 14px 18px 14px 18px;
   border: 1px solid rgba(0,255,170,0.15);
@@ -202,7 +204,7 @@ export const TextArea = styled.textarea`
 `;
 
 export const SendButton = styled.button<{ $canSend: boolean }>`
-  width: 46px; height: 46px; border: none; border-radius: 50%;
+  width: 44px; height: 44px; border: none; border-radius: 10px;
   background: ${props => props.$canSend 
     ? 'linear-gradient(145deg,#12e3a1,#00b875 70%)'
     : 'linear-gradient(145deg,#1f3c2d,#173025)'};
@@ -221,11 +223,11 @@ export const SendButton = styled.button<{ $canSend: boolean }>`
 `;
 
 export const MessageBubble = styled.div<{ $isUser: boolean; $isError?: boolean }>`
-  max-width: 70%;
-  padding: 13px 18px 14px;
+  max-width: 72%;
+  padding: 12px 14px 13px;
   border-radius: 18px;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.4;
   word-wrap: break-word; white-space: pre-wrap;
   align-self: ${props => props.$isUser ? 'flex-end' : 'flex-start'};
   position: relative;
@@ -263,7 +265,7 @@ export const ClearButton = styled.button<{ disabled?: boolean }>`
   border-radius: 10px;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   opacity: ${props => props.disabled ? 0.55 : 1};
-  font-size: 13px;
+  font-size: 12px;
   line-height: 18px;
   display: inline-flex;
   align-items: center; gap: 6px;

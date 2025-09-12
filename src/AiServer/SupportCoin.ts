@@ -1,1 +1,0 @@
-export const supportCoin = "SUI、USDC、NAVX、WAL";
