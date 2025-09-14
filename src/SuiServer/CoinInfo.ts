@@ -1,4 +1,4 @@
-export const coinAddress = {
+export const coinInfo = {
   XAUM: {
     coinType: '9d297676e7a4b771ab023291377b2adfaa4938fb9080b8d12430e4b108b836a9::xaum::XAUM',
     decimals: 9

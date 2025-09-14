@@ -5,7 +5,6 @@ import { normalPrompt, firstIntentAnalysis } from './GlobalPrompt';
 import { queryCoinPrompt, queryCoinResultPrompt } from './QueryCoinPrompt';
 import { suiService } from '../SuiServer/SuiService';
 import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
-import { naviService } from '../NaviServer/NaviService';
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
 class OpenAIService {
@@ -130,7 +129,7 @@ class OpenAIService {
       switch (parsed.intent) {
         case intentType.QUERY_POOLS: {
           try{
-            const pools = await naviService.getNaviPoolsSimple();
+            const pools = await suiService.getNaviPoolsSimple();
             const poolQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
               { role: 'system', content: queryPoolResultPrompt(pools) },
               ...openAIMessages
@@ -146,29 +145,50 @@ class OpenAIService {
         }
         case intentType.DEPOSIT: {
           const depositCoinMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-            { role: 'system', content: depositPrompt() },
+            { role: 'system', content: depositPrompt(walletAddress) },
             ...openAIMessages
           ];
           const depositContent = await this.callOpenAIAPI(depositCoinMessages, '存款分析');
-          const depositParsed = this.extractAndParseJSON<{ id: string, symbol: string, amount: number, isValid: Boolean, errorMessage: string, reasoning: string }>(depositContent);
-          if(!depositParsed.isValid){
+          console.log('存款分析回复:', depositContent);
+          const depositParsed = this.extractAndParseJSON<{ address: string, id: number, symbol: string, amount: number, unit: string, isValid: boolean, errorMessage: string, reasoning: string }>(depositContent);
+          const depositAddress = depositParsed.address;
+          const depositId = depositParsed.id;
+          const depositSymbol = depositParsed.symbol.toUpperCase();
+          const depositAmount = depositParsed.amount;
+          const depositUnit = depositParsed.unit.toUpperCase();
+          const depositIsValid = depositParsed.isValid;
+          const depositReasoning = depositParsed.reasoning;
+          if(!depositIsValid){
             const notClearMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
               { role: 'system', content: depositNotClear() },
               ...openAIMessages,
-              { role: 'user', content: depositParsed.reasoning || '请根据用户最后的输入进行回复。' }
+              { role: 'user', content: depositReasoning || '请根据用户最后的输入进行回复。' }
             ];
             const notClearContent = await this.callOpenAIAPI(notClearMessages, '存款指令不清晰');
             return notClearContent || '（空回复）';
           } else {
-            const poolInfo = await naviService.getNaviPool(depositParsed.id !== 'unknown' ? depositParsed.id : depositParsed.symbol);
-            if(depositParsed.id !== 'unknown' && depositParsed.symbol !== 'unknown'){
-              if(poolInfo.id !== depositParsed.id || poolInfo.symbol !== depositParsed.symbol){
-                return `未找到与 ID "${depositParsed.id}" 和 币种 "${depositParsed.symbol}" 匹配的池子，请确认后重试。`;
+            try {
+              if (!signer) {
+                return '无法发起质押：未提供钱包签名器，请先连接钱包或传入 signer。';
               }
-            } else {
-              console.warn('存款时未提供池子 ID 或 Symbol，可能导致匹配错误');
+              const depositResult = await suiService.depositCoin({
+                depositAddress,
+                depositId,
+                depositSymbol,
+                depositAmount,
+                depositUnit,
+                signer
+              });
+              if (depositResult?.digest) {
+                return `质押提交成功，交易哈希: ${depositResult.digest}`;
+              }
+              return '质押已提交。';
+            } catch (e) {
+              console.error('质押失败:', e);
+              return '质押失败，请稍后重试。';
             }
           }
+          return '未能完成质押操作';
         }
         case intentType.QUERY_BALANCE:
           const balanceQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -228,25 +248,7 @@ class OpenAIService {
 
               if (transferResult?.digest) {
                 try {
-                  const info = await suiService.getTransactionDetails(transferResult.digest, coin.toUpperCase());
-
-                  const transferInfo = {
-                    digest: info.digest,
-                    sender: info.sender,
-                    recipient: info.recipient,
-                    amount: info.amount,
-                    amountSui: info.amountSui,
-                    coinType: 'SUI',
-                    status: info.status,
-                  } as const;
-
-                  console.log('转账详情:', transferInfo);
-
-                  const transferResultMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-                    { role: 'system', content: transferResultPrompt(transferInfo) },
-                  ];
-                  const transferResultContent = await this.callOpenAIAPI(transferResultMessages, '转账成功结果');
-                  return transferResultContent;
+                  return `转账成功，交易哈希: ${transferResult.digest}。您可以前往 https://suiscan.xyz/ 查询转账细则`;
                 } catch (detailError) {
                   console.error('获取转账详情失败:', detailError);
                   const transferResultMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
