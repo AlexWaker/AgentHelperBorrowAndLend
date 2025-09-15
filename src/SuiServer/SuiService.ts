@@ -139,9 +139,14 @@ class SuiService {
 		const primaryCoinId = allCoins.data[0].coinObjectId;
 		const mergeIds = allCoins.data.slice(1).map(c => tx.object(c.coinObjectId));
 		if (mergeIds.length > 0) tx.mergeCoins(tx.object(primaryCoinId), mergeIds);
-		const [coinObject] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(amountMist)]);
-		console.log('primary', primaryCoinId);
-		return { coinObject, total };
+		if(coin.toUpperCase() === 'SUI' && total >= amountMist) {
+			const [coinObject] = tx.splitCoins(tx.gas, [tx.pure.u64(amountMist)]);
+			return { coinObject, total };
+		} else {
+			const [coinObject] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(amountMist)]);
+			console.log('primary', primaryCoinId);
+			return { coinObject, total };
+		}
 	}
 	async buildCoinDepositTransaction(params: { depositAddress: string, depositId: number; depositSymbol: string; depositAmount: number; depositUnit: string }): Promise<Transaction> {
 		const { depositAddress, depositId, depositSymbol, depositAmount, depositUnit } = params;

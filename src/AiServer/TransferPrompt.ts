@@ -8,12 +8,12 @@ export const transferCoinPrompt = (walletAddress: string | undefined): string =>
     - toAddress：0x 开头的 Sui 地址
     - amount：> 0
 
-    以下任一情况判定 isValid=false：缺少地址/金额、地址非法或多个地址，提供的地址（如果用户自己提供的话）并非当前钱包地址、金额≤0、非 SUI、未连接且未指定 from、指令含糊。
+    以下任一情况判定 isValid=false：缺少地址/金额、地址非法或多个地址，提供的地址（如果用户自己提供的话）并非当前钱包地址、金额≤0、未连接钱包、指令含糊。
 
     仅输出 JSON（不要附加解释）：
     {
         "fromAddress": 当前钱包地址,
-        "toAddress": "",
+        "toAddress": 数组形式存储收款地址,
         "amount": 转账数量（数字）,
         "coin": 代币名称,
         "memo": "",
