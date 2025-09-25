@@ -3,5 +3,7 @@ export const intentType = {
     TRANSFER: "TRANSFER",
     QUERY_POOLS: "QUERY_POOLS",
     DEPOSIT: "DEPOSIT",
+    QUERY_PORTFOLIO: "QUERY_PORTFOLIO",
+    WITHDRAW: "WITHDRAW",
     OTHER: "OTHER"
 };

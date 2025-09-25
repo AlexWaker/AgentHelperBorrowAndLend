@@ -1,4 +1,16 @@
-export const coinInfo = {
+// 基础静态币种信息。会在运行过程中被动态增量更新（不要使用 as const 以便允许写入）。
+export type CoinMeta = { coinType: string; decimals: number };
+
+export interface CoinInfoMap {
+  [symbol: string]: CoinMeta; // 动态新增的 symbol
+  XAUM: CoinMeta; 'YBTC.B': CoinMeta; MBTC: CoinMeta; ENZOBTC: CoinMeta; IKA: CoinMeta; XBTC: CoinMeta;
+  HAEDAL: CoinMeta; WAL: CoinMeta; LBTC: CoinMeta; SOL: CoinMeta; WBTC: CoinMeta; STSUI: CoinMeta;
+  SUIUSDT: CoinMeta; BUCK: CoinMeta; BLUE: CoinMeta; FDUSD: CoinMeta; DEEP: CoinMeta; STBTC: CoinMeta;
+  NS: CoinMeta; USDY: CoinMeta; SUIETH: CoinMeta; USDC: CoinMeta; AUSD: CoinMeta; NAVX: CoinMeta;
+  HASUI: CoinMeta; VSUI: CoinMeta; CETUS: CoinMeta; WETH: CoinMeta; WUSDT: CoinMeta; WUSDC: CoinMeta; SUI: CoinMeta;
+}
+
+export let coinInfo: CoinInfoMap = {
   XAUM: {
     coinType: '9d297676e7a4b771ab023291377b2adfaa4938fb9080b8d12430e4b108b836a9::xaum::XAUM',
     decimals: 9
@@ -125,3 +137,44 @@ export const coinInfo = {
     decimals: 9
   }
 };
+
+/**
+ * 将新的币种元数据写入内存表；若已存在则按需更新。
+ * @param symbol 币种符号（不区分大小写）
+ * @param meta  元数据
+ * @returns 返回合并后的对象引用
+ */
+export function upsertCoin(symbol: string, meta: CoinMeta) {
+  if (!symbol) return;
+  const key = symbol.toUpperCase();
+  const existing = coinInfo[key];
+  if (!existing || existing.coinType !== meta.coinType || existing.decimals !== meta.decimals) {
+    coinInfo[key] = { ...meta };
+  }
+  return coinInfo[key];
+}
+
+/**
+ * 批量合并池子列表里的币种信息。
+ */
+export function mergeCoinsFromPools(pools: any[]) {
+  if (!Array.isArray(pools)) return;
+  for (const p of pools) {
+    try {
+      const symbol = p?.token?.symbol;
+      const coinType = p?.coinType || p?.token?.coinType;
+      const decimals = p?.token?.decimals;
+      if (!symbol || !coinType || typeof decimals !== 'number') continue;
+      upsertCoin(symbol, { coinType, decimals });
+    } catch {
+      // 忽略单条错误
+    }
+  }
+}
+
+/**
+ * 获取币种信息，若不存在直接返回 undefined。
+ */
+export function getCoinMeta(symbol: string): CoinMeta | undefined {
+  return coinInfo[symbol.toUpperCase()];
+}

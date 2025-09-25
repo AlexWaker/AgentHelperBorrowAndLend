@@ -1,3 +1,20 @@
+/**
+ * OpenAIService
+ * --------------------------------------------------------
+ * 负责：
+ * 1. 统一封装与 LLM(DeepSeek / OpenAI 兼容接口) 的调用
+ * 2. 聊天消息格式转换（前端 Message -> OpenAI Chat 格式）
+ * 3. 多轮意图识别 -> 按意图触发业务（查询池子 / 余额 / 质押 / 转账 / 闲聊）
+ * 4. 解析模型返回中嵌入的 JSON（宽容：支持 ```json fenced、普通 fenced、或裸 JSON 片段）
+ * 5. 与链上服务 `suiService` 交互（获取池子、余额、发起交易）
+ *
+ * 设计要点：
+ * - 第一轮统一添加 system 提示：normalPrompt + firstIntentAnalysis，引导模型输出结构化意图 JSON
+ * - 使用 extractAndParseJSON 宽容地从文本中提取 JSON，避免模型多余自然语言导致解析失败
+ * - Intent 分支中再按需要二次调用模型补全“最终回复”模板
+ * - 实际链上操作（转账/存款）前检查 signer / wallet 是否存在，降低误触风险
+ * - 模型温度较低（0.2）保证结构化输出稳定
+ */
 import OpenAI from 'openai';
 import { Message } from '../Components/Chatwindows/types';
 import { intentType } from './IntentType';
@@ -7,9 +24,15 @@ import { suiService } from '../SuiServer/SuiService';
 import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
+
 class OpenAIService {
   private client: OpenAI;
   private model: string;
+  /**
+   * 构造函数：读取环境变量初始化模型与 API Key
+   * VITE_OPENAI_API_URL: 可指向 deepseek 兼容端点
+   * VITE_OPENAI_MODEL: 模型名称（默认 deepseek-chat）
+   */
   constructor() {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     const baseURL = import.meta.env.VITE_OPENAI_API_URL || 'https://api.deepseek.com';
@@ -20,6 +43,7 @@ class OpenAIService {
       dangerouslyAllowBrowser: true,
     });
   }
+  /** 动态替换 API Key（例如用户输入自己的 Key） */
   setApiKey(apiKey: string) {
     this.client = new OpenAI({
       baseURL: this.client.baseURL,
@@ -28,6 +52,12 @@ class OpenAIService {
     });
   }
 
+  /**
+   * 将前端维护的消息结构转换为 OpenAI Chat API 所需格式
+   * - sender:user => role:user
+   * - sender:system => role:system （保留）
+   * - 其它 => assistant
+   */
   private convertToOpenAIMessages(messages: Message[]): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
     return messages.map(msg => ({
       role:
@@ -38,6 +68,16 @@ class OpenAIService {
     }));
   }
 
+  /**
+   * 尝试从模型返回文本中解析 JSON：
+   * 解析策略（按优先级）：
+   * 1. ```json fenced code block
+   * 2. 任意 ``` fenced code block
+   * 3. 回退：扫描第一个 '{' 起始，通过括号深度匹配找到完整 JSON
+   *
+   * 好处：模型即便在 JSON 前后加了解释性文字也能提取。
+   * 风险：若文本中出现多个 JSON，只解析第一个；若模型输出格式混乱仍可能抛错。
+   */
   private extractAndParseJSON<T = any>(text: string): T {
     const fenced = text.match(/```\s*json\s*([\s\S]*?)```/i) || text.match(/```\s*([\s\S]*?)```/i);
     if (fenced?.[1]) {
@@ -80,6 +120,7 @@ class OpenAIService {
     messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
     logPrefix: string = 'OpenAI',
   ): Promise<string> {
+    // 统一的底层调用：可在这里加重试/日志/限流
     try {
       console.debug(`[${logPrefix}] 请求开始，消息数: ${messages.length}`);
     } catch {}
@@ -107,7 +148,8 @@ class OpenAIService {
     walletAddress?: string,
     signer?: (args: { transaction: any; chain?: string }) => Promise<any>
   ): Promise<string> {
-
+    // 入口：对话 + 上下文 -> 识别意图 -> 执行业务 -> 再组织自然语言反馈
+    // 只有连接钱包后才允许执行链上操作（查询、转账、存款等）
     if(!isWalletConnected){
       return '请先连接钱包以使用 AI 助手功能';
     }
@@ -117,15 +159,20 @@ class OpenAIService {
       throw new Error('没有消息需要处理');
     }
     try {
+      // 1) 转换历史消息
       const openAIMessages = this.convertToOpenAIMessages(messages);
       const messagesWithSystem: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        // 2) 注入系统提示，指导模型执行：
         { role: 'system', content: normalPrompt() },
         { role: 'system', content: firstIntentAnalysis() },
         ...openAIMessages
       ];
+      console.log('发送给 OpenAI 的消息:', messagesWithSystem);
+      // 3) 第一轮调用：意图分析（期望模型返回 JSON）
       const content = await this.callOpenAIAPI(messagesWithSystem, '最初始意图分析');
       console.log('最初始意图分析回复:', content);
       const parsed = this.extractAndParseJSON<{ intent: string, confidence: number, requiresWallet: boolean, reasoning: string }>(content);
+      // 4) 根据意图分支处理
       switch (parsed.intent) {
         case intentType.QUERY_POOLS: {
           try{
@@ -134,6 +181,7 @@ class OpenAIService {
               { role: 'system', content: queryPoolResultPrompt(pools) },
               ...openAIMessages
             ];
+            // 二次调用：让模型基于池子数据组织用户可读输出
             const poolContent = await this.callOpenAIAPI(poolQueryMessages, '池子查询');
             console.log('池子查询回复:', poolContent);
             return poolContent;
@@ -144,6 +192,7 @@ class OpenAIService {
           }
         }
         case intentType.DEPOSIT: {
+          // 模型第一次只给出结构化解析；此处用 depositPrompt 引导它补全更详细的质押参数解释
           const depositCoinMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: depositPrompt(walletAddress) },
             ...openAIMessages
@@ -157,8 +206,9 @@ class OpenAIService {
           const depositAmount = depositParsed.amount;
           const depositUnit = depositParsed.unit.toUpperCase();
           const depositIsValid = depositParsed.isValid;
-          const depositReasoning = depositParsed.reasoning;
+          const depositReasoning = depositParsed.errorMessage || depositParsed.reasoning;
           if(!depositIsValid){
+            // 分析不完整 / 缺字段 -> 走一个“澄清”提示
             const notClearMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
               { role: 'system', content: depositNotClear() },
               ...openAIMessages,
@@ -171,6 +221,7 @@ class OpenAIService {
               if (!signer) {
                 return '无法发起质押：未提供钱包签名器，请先连接钱包或传入 signer。';
               }
+              // 构建 + 签名发送交易
               const depositResult = await suiService.depositCoin({
                 depositAddress,
                 depositId,
@@ -191,6 +242,7 @@ class OpenAIService {
           return '未能完成质押操作';
         }
         case intentType.QUERY_BALANCE:
+          // 余额查询：第二次调用用于生成用户友好的结果表达
           const balanceQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: queryCoinPrompt(walletAddress) },
             ...openAIMessages
@@ -220,6 +272,7 @@ class OpenAIService {
           }
 
         case intentType.TRANSFER:
+          // 转账与质押类似：先由模型抽取结构化参数，再执行链上操作
           const transferMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: transferCoinPrompt(walletAddress) },
             ...openAIMessages
@@ -238,6 +291,7 @@ class OpenAIService {
               if (!walletAddress) {
                 return '无法发起转账：钱包地址未定义，请先连接钱包。';
               }
+              // 构建 & 发送交易（使用 toMist 把人类单位转最小单位）
               const transferResult = await suiService.transferSui({
                 from: fromAddress,
                 to: toAddress,
@@ -269,8 +323,13 @@ class OpenAIService {
           } else {
             return transferParsed.errorMessage || '（空回复）';
           }
+        case intentType.QUERY_PORTFOLIO:
+          return '投资组合查询功能正在开发中，敬请期待！';
+        case intentType.WITHDRAW:
+          return '赎回功能正在开发中，敬请期待！'; 
 
         default:
+          // 兜底：无匹配意图 -> 普通对话 / 闲聊
           const casualMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
             { role: 'system', content: normalPrompt() },
             ...openAIMessages,
