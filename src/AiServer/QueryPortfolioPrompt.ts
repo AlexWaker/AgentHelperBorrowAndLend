@@ -9,7 +9,7 @@ export const queryPortfolioPrompt = (walletAddress?: string | undefined) => {
     【返回格式】
     请严格按照以下 JSON 格式回复：
     {
-    "address": 要查询的币种符号（用户明确指定的时候填写，否则填写当前连接的钱包地址）,
+    "address": 要查询的币种符号（用户明确指定的时候填写，否则填写当前连接的钱包地，若都没有则填写“未连接”）,
     "errorMessage": 如果有错误，请填写错误信息
     "reasoning": "详细的分析推理过程"
     }

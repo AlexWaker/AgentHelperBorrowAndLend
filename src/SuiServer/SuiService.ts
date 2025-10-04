@@ -15,7 +15,7 @@
  */
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions';
-import { coinInfo, mergeCoinsFromPools, upsertCoin } from './CoinInfo';
+import { coinInfo } from './CoinManager';
 import { getPools, getPool, depositCoinPTB, getLendingState } from '@naviprotocol/lending';
 
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet';
@@ -50,6 +50,8 @@ class SuiService {
 	private poolCache: { updatedAt: number; pools: any[] } = { updatedAt: 0, pools: [] };
 	/** 当前正在进行的池子请求 Promise；用于合并并发，防止短时间内多次重复请求 */
 	private poolFetchPromise?: Promise<any[]>;
+	/** 背景预热 Promise，防止多处重复触发 */
+	private warmPromise?: Promise<void>;
 
 	constructor(defaultNetwork: SuiNetwork = 'devnet') {
 		this.defaultNetwork = defaultNetwork;
@@ -76,12 +78,24 @@ class SuiService {
 			const parsed = JSON.parse(raw);
 			if (parsed && Array.isArray(parsed.pools) && typeof parsed.updatedAt === 'number') {
 				this.poolCache = parsed;
-				// 合并 coin 信息（即便过期也可以先用，后面再刷新）
-				mergeCoinsFromPools(parsed.pools);
+				// 动态 coinInfo 逻辑已移除：此处不再合并 symbol
 			}
 		} catch (e) {
 			console.warn('加载本地池子缓存失败:', e);
 		}
+	}
+
+	/** 将最小单位（字符串）转换为人类可读单位 */
+	toCoin(coin:string, balanceInMist: string): number {
+		return Number(balanceInMist) / (10**coinInfo[coin as keyof typeof coinInfo].decimals);
+	}
+
+	/** 将人类可读数量转换为最小单位 bigint */
+	toMist(coin: string, amountCoin: string | number): bigint {
+		const n = typeof amountCoin === 'string' ? Number(amountCoin) : amountCoin;
+		console.log('n', n);
+		if (!Number.isFinite(n) || n <= 0) throw new Error('转账金额必须是正数');
+		return BigInt(Math.round(n * (10**coinInfo[coin as keyof typeof coinInfo].decimals)));
 	}
 
 	/** 将当前内存池子缓存序列化并写入 localStorage（忽略写入异常） */
@@ -110,7 +124,7 @@ class SuiService {
 		this.poolFetchPromise = (async () => {
 			try {
 				const pools = await getPools({ env: this.mapEnv(), cacheTime: 30000 });
-				mergeCoinsFromPools(pools);
+				// 已移除动态 coinInfo 维护逻辑（需求：保持最初写死状态）
 				this.poolCache = { pools, updatedAt: Date.now() };
 				this.savePoolCacheToStorage();
 				return pools;
@@ -119,6 +133,28 @@ class SuiService {
 			}
 		})();
 		return this.poolFetchPromise;
+	}
+
+	/**
+	 * 背景预热：页面加载后主动拉取池子，并更新 coinInfo。
+	 * 不阻塞首屏渲染；若已有有效缓存则快速返回。
+	 * @param forceRefresh 是否强制忽略缓存重新拉取
+	 */
+	public warmPools(forceRefresh = false): Promise<void> {
+		if (this.warmPromise) return this.warmPromise;
+		this.warmPromise = (async () => {
+			try {
+				if (forceRefresh || !this.isPoolCacheValid()) {
+					await this.fetchAndUpdatePools();
+				}
+			} catch (e) {
+				console.warn('预热池子数据失败(忽略):', e);
+			} finally {
+				// 轻微延迟后允许再次预热（避免立即连点）
+				setTimeout(() => { this.warmPromise = undefined; }, 1000);
+			}
+		})();
+		return this.warmPromise;
 	}
 
 	/**
@@ -132,19 +168,6 @@ class SuiService {
 			coinType: coinInfo[coin as keyof typeof coinInfo].coinType,
 		});
 		return totalBalance;
-	}
-
-	/** 将最小单位（字符串）转换为人类可读单位 */
-	toCoin(coin:string, balanceInMist: string): number {
-		return Number(balanceInMist) / (10**coinInfo[coin as keyof typeof coinInfo].decimals);
-	}
-
-	/** 将人类可读数量转换为最小单位 bigint */
-	toMist(coin: string, amountCoin: string | number): bigint {
-		const n = typeof amountCoin === 'string' ? Number(amountCoin) : amountCoin;
-		console.log('n', n);
-		if (!Number.isFinite(n) || n <= 0) throw new Error('转账金额必须是正数');
-		return BigInt(Math.round(n * (10**coinInfo[coin as keyof typeof coinInfo].decimals)));
 	}
 
 	/** 基础 Sui 地址格式校验 */
@@ -210,17 +233,9 @@ class SuiService {
 				return await getPool(identifier, { env: this.mapEnv() }); // 兜底精确请求
 			} else {
 				const upper = String(identifier).toUpperCase();
-				let meta = coinInfo[upper as keyof typeof coinInfo];
-				if (!meta) {
-					if (!this.isPoolCacheValid()) await this.fetchAndUpdatePools();
-					const p = this.poolCache.pools.find(p => p?.token?.symbol?.toUpperCase() === upper);
-					if (p) {
-						upsertCoin(upper, { coinType: p.coinType || p?.token?.coinType, decimals: p?.token?.decimals });
-						meta = coinInfo[upper as keyof typeof coinInfo];
-					}
-				}
-				if (!meta) throw new Error('未知币种, 请先刷新池子列表');
-				// 缓存里可能已有对应的 pool
+				// 静态 coinInfo 模式下，只允许已知 symbol；否则直接报错
+				const meta = coinInfo[upper as keyof typeof coinInfo];
+				if (!meta) throw new Error('未知币种(静态表)，请确认该 symbol 是否受支持');
 				const hit = this.poolCache.pools.find(p => p?.token?.symbol?.toUpperCase() === upper);
 				if (hit) return hit;
 				return await getPool(meta.coinType, { env: this.mapEnv() });
@@ -245,26 +260,13 @@ class SuiService {
 		const pools = await this.getNaviPools(forceRefresh);
 		return pools.map(pool => this.normalizePool(pool));
 	}
-	/** SUI 专用：从人类单位转最小单位（SUI 9 decimals） */
-	toSuiMist(amount: number | string): bigint {
-		const n = typeof amount === 'string' ? Number(amount) : amount;
-		if (!Number.isFinite(n) || n <= 0) throw new Error('质押金额必须是正数');
-		return BigInt(Math.round(n * 1_000_000_000));
-	}
-	/** 归一化借贷状态里的单条资产结构 */
-	private normalizePortfolio(portfolio: any): any {
-		const poolId = portfolio.assetId || -1;
-		const borrowBalance = portfolio.borrowBalance || '0';
-		const supplyBalance = portfolio.supplyBalance || '0';
-		const coinType = portfolio.pool?.coinType || 'UNKNOWN';
-		return { poolId, borrowBalance, supplyBalance, coinType };
-	}
 	/** 查询地址在 Navi 上的借贷资产列表 */
 	async getNaviLendingState(depositAddress: string): Promise<any> {
 		this.assertAddress(depositAddress);
+		console.log('Fetching lending state for:', depositAddress);
 		try {
 			const allPortfolio = await getLendingState(depositAddress, { env: this.mapEnv() });
-			return allPortfolio.map(portfile => this.normalizePortfolio(portfile));
+			return allPortfolio
 		} catch (error) {
 			console.error('Error fetching lending state:', error);
 			return null;
@@ -287,6 +289,7 @@ class SuiService {
 		if (mergeIds.length > 0) tx.mergeCoins(tx.object(primaryCoinId), mergeIds);
 		if(coin.toUpperCase() === 'SUI' && total >= amountMist) {
 			const [coinObject] = tx.splitCoins(tx.gas, [tx.pure.u64(amountMist)]);
+			console.log('sui gas', amountMist);
 			return { coinObject, total };
 		} else {
 			const [coinObject] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(amountMist)]);

@@ -24,6 +24,7 @@ import { suiService } from '../SuiServer/SuiService';
 import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
+import { queryPortfolioPrompt, queryNotClear, queryPortfolioResultPrompt } from './QueryPortfolioPrompt';
 
 class OpenAIService {
   private client: OpenAI;
@@ -281,7 +282,7 @@ class OpenAIService {
           console.log('转账分析回复:', transferContent);
 
           const transferParsed = this.extractAndParseJSON<{ fromAddress: string, toAddress: string, coin: string, amount: number, isValid: boolean, errorMessage: string }>(transferContent);
-
+          console.log('转账解析结果:', transferParsed);
           if (transferParsed.isValid) {
             const { fromAddress, toAddress, coin, amount } = transferParsed;
             try {
@@ -324,7 +325,40 @@ class OpenAIService {
             return transferParsed.errorMessage || '（空回复）';
           }
         case intentType.QUERY_PORTFOLIO:
-          return '投资组合查询功能正在开发中，敬请期待！';
+          const queryPortfolioMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: queryPortfolioPrompt(walletAddress) },
+            ...openAIMessages
+          ];
+          const queryPortfolioContent = await this.callOpenAIAPI(queryPortfolioMessages, '投资组合查询');
+          console.log('投资组合查询回复:', queryPortfolioContent);
+          const queryPortfolioParsed = this.extractAndParseJSON<{ address: string, errorMessage: string, reasoning: string }>(queryPortfolioContent);
+          if (queryPortfolioParsed.address !== '未连接') {
+            const address = queryPortfolioParsed.address;
+            try {
+              const portfolio = await suiService.getNaviLendingState(address);
+              console.log('投资组合查询结果:', portfolio);
+              const portfolioMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+                { role: 'system', content: queryPortfolioResultPrompt(portfolio.toString()) },
+              ];
+              const portfolioContent = await this.callOpenAIAPI(portfolioMessages, '投资组合查询结果');
+              return portfolioContent;
+              //
+              return portfolio;
+
+            } catch (e) {
+              console.error('查询投资组合失败:', e);
+              return '查询投资组合信息失败，请稍后重试。';
+            }
+          } else {
+            // 分析不完整 / 缺字段 -> 走一个“澄清”提示
+            const queryNotClearMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: queryNotClear() },
+              ...openAIMessages,
+              { role: 'user', content: queryPortfolioParsed.reasoning || '请根据用户最后的输入进行回复。' }
+            ];
+            const queryNotClearContent = await this.callOpenAIAPI(queryNotClearMessages, '投资组合查询指令不清晰');
+            return queryNotClearContent || '（空回复）';
+          }
         case intentType.WITHDRAW:
           return '赎回功能正在开发中，敬请期待！'; 
 

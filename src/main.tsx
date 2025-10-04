@@ -9,6 +9,7 @@ import { Theme } from "@radix-ui/themes";
 import App from "./App.tsx";
 import { GlobalStyle } from './globalStyles';
 import { networkConfig } from "./networkConfig.ts";
+import { suiService } from './SuiServer/SuiService';
 
 const queryClient = new QueryClient();
 const env = import.meta.env.VITE_SUI_ENV
@@ -27,3 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </Theme>
   </React.StrictMode>,
 );
+
+// 后台预热：不阻塞 UI，尽快获取最新池子并填充 coinInfo（含动态币种 & 缓存更新）
+// 允许静默失败
+Promise.resolve().then(() => {
+  try { suiService.warmPools(); } catch {}
+});

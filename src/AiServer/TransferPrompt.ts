@@ -13,7 +13,7 @@ export const transferCoinPrompt = (walletAddress: string | undefined): string =>
     仅输出 JSON（不要附加解释）：
     {
         "fromAddress": 当前钱包地址,
-        "toAddress": 数组形式存储收款地址,
+        "toAddress": 收款地址,
         "amount": 转账数量（数字）,
         "coin": 代币名称,
         "memo": "",

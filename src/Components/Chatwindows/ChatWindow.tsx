@@ -40,7 +40,7 @@ const ChatWindow: React.FC = () => {
           timestamp: new Date(),
         }];
       });
-    }, 100); // 延迟 100ms 后显示
+    }, 200); // 延迟 200ms 后显示
     return () => clearTimeout(timer);
   }, [isWalletConnected, messages.length]);
 

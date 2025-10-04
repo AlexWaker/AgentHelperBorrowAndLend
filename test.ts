@@ -51,4 +51,4 @@
 import { getLendingState } from '@naviprotocol/lending'
 
 const lendingStates = await getLendingState("0x7a706ef9264044bb7f995451a6232f8ce81d1cec3aee48dd87451fe22816b8fb")
-console.log(lendingStates)
+console.log(lendingStates[0].pool.supplyIncentiveApyInfo)
