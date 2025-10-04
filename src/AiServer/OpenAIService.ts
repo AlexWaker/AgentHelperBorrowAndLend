@@ -337,14 +337,13 @@ class OpenAIService {
             try {
               const portfolio = await suiService.getNaviLendingState(address);
               console.log('投资组合查询结果:', portfolio);
+              // 之前使用 portfolio.toString() 会变成 [object Object] 丢失结构；
+              // 直接传原始对象，由 queryPortfolioResultPrompt 内部负责 JSON.stringify 与截断。
               const portfolioMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-                { role: 'system', content: queryPortfolioResultPrompt(portfolio.toString()) },
+                { role: 'system', content: queryPortfolioResultPrompt(portfolio) },
               ];
               const portfolioContent = await this.callOpenAIAPI(portfolioMessages, '投资组合查询结果');
               return portfolioContent;
-              //
-              return portfolio;
-
             } catch (e) {
               console.error('查询投资组合失败:', e);
               return '查询投资组合信息失败，请稍后重试。';
