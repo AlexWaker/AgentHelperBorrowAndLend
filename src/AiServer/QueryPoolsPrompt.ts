@@ -30,16 +30,9 @@ export const queryPoolResultPrompt = (queryResult: any): string => {
     当前池子信息：
     ${JSON.stringify(queryResult, null, 2)}
 
-    其中：
-    - symbol表示代币名称
-    - id表示池子ID
-    - borrowAPY表示借款年化收益率
-    - supplyAPY表示存款年化收益率
-    - price表示当前价格（USD）
-
     注意事项：
-    - 如果用户查询的信息不包含在当前池子信息内（比如查询当前池子的奖励代币是什么，则礼貌提示用户这些信息当前暂不可查询）
-    - 可以提示用户想进一步查询具体池子信息的话可以访问Navi官网https://app.naviprotocol.io/
+    - 我注意到你在分析数量的时候经常出错，你可能并不在意decimals，比如用户某个代币数量为1000000000mist，在decimals为9的情况下，实际代币数量（人类可读）为1，但你总是搞错，decimals已经被包含在字段中，请你认真思考这一点
+    - 可以提示用户访问Navi官网https://app.naviprotocol.io/查询更多信息
 
     请用专业但友好的语言回复用户的疑问。`;
 }

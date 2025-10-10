@@ -22,73 +22,15 @@ export const queryNotClear = (): string => {
 }
 
 export const queryPortfolioResultPrompt = (queryResult: any): string => {
-  // 防止直接插值对象导致 [object Object]，这里做格式化处理
-  const formatResult = (val: any): string => {
-    if (val == null) return 'null';
-    if (typeof val === 'string') {
-      // 如果已经是字符串且看起来像 JSON，就直接返回
-      const trimmed = val.trim();
-      if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
-        return trimmed;
-      }
-      return val;
-    }
-    try {
-      // 处理 BigInt -> string，避免 JSON.stringify 报错
-      const replacer = (_k: string, v: any) => typeof v === 'bigint' ? v.toString() : v;
-      const json = JSON.stringify(val, replacer, 2);
-    //   防止过长 prompt，截断并提示（可按需调整阈值）
-      const MAX = 12000; // 字符阈值
-      if (json.length > MAX) {
-        return json.slice(0, MAX) + '\n...（已截断，实际数据更长）';
-      }
-      return json;
-    } catch (e) {
-      return '[无法序列化的结果]';
-    }
-  };
-  const pretty = formatResult(queryResult);
      return `【查询投资组合任务】
 
 当前原始投资组合（portfolio）数据（JSON 数组，每个元素代表一个池的持仓/借款情况）：
-${pretty}
+${JSON.stringify(queryResult, null, 2)}
 
-【字段说明（单条 portfolio 结构）】
-顶层常见字段：
-- assetId: 资产/池子 ID（与 pool.id 对应）
-- borrowBalance: 当前地址在该池的借款余额（原始最小单位字符串，为 "0" 表示未借）
-- supplyBalance: 当前地址在该池的存款余额（原始最小单位字符串）
-- pool: 该池的元数据与风险/利率/奖励信息对象
-
-pool 内常见字段：
-- id: 池子 ID（和 assetId 关联）
-- coinType / suiCoinType: 资产在链上的完整 Move 类型标识（有时两个字段相同，保留链上唯一性）
-- token: { symbol, decimals, logoUri } 其中 decimals 用于把 supplyBalance / borrowBalance 转成人类可读数量
-- oracle: { price, value, decimal, valid } price 为 USD 价格（字符串），value 是原始预言机内部值（decimal 决定精度）
-- ltv: 最高贷款价值比（高精度大整数，未提供精度时不要臆算；可声明“原始值”）
-- borrowCapCeiling / supplyCapCeiling: 借款/存款总上限（原始大整数或科学计数字符串）
-- currentBorrowIndex / currentSupplyIndex: 利息（复利）累积指数，随时间递增，用于内部结息计算
-- currentBorrowRate / currentSupplyRate: 实时利率（底层定点数，若未给出精度，回答时说明“原始速率值”即可）
-- totalSupply / totalBorrow: 全局累计存入/借出量（原始或衍生统计）
-- totalSupplyAmount: 可能与 totalSupply 差异（具体需官方文档，回答可并列展示）
-- borrowedAmount: 已被借出的量（原始值）
-- availableBorrow: 该池当前剩余可借额度（流动性判断）
-- validBorrowAmount / leftBorrowAmount / leftSupply: 剩余或可用容量指标（互相关联，不能重复自相矛盾）
-- leftSupply: 剩余可再存入的可用空间或估算剩余供应容量
-- minimumAmount: 发起一次操作的最小数量（小于该值的 supply 或 borrow 可能被拒）
-- treasuryBalance: 协议金库余额（用于奖励/风险缓冲）
-- treasuryFactor: 协议对收益抽成或分润因子（高精度）
-- isIsolated: 是否隔离池（隔离池的抵押风险不与其它资产共享）
-- lastUpdateTimestamp: 最近状态更新时间戳（可能是毫秒/纳秒样式的长整数字符串，避免误判）
-- oracleId: 价格源 ID（和 oracle 对象相对应）
-- supplyIncentiveApyInfo / borrowIncentiveApyInfo: 存款 / 借款的奖励信息对象：
-  - apy: 综合年化收益（百分数字符串）
-  - vaultApr / boostedApr / treasuryApy / stakingYieldApy: 组成 APY 的不同来源（可能有的为 "0"）
-  - rewardCoin: 奖励发放的代币 coinType 列表（可能包含多个，如主币 + 衍生证书）
-  - voloApy 等字段若为 "0" 可直接说明暂无该来源奖励
-- liquidationFactor: { threshold, ratio, bonus }：清算相关参数（例如 threshold ~ 触发清算 LTV；bonus 为清算人奖励；ratio 代表折价/回收因子）
-- borrowRateFactors: 利率曲线或参数配置对象（结构内部复杂时可概述为“内部利率因子配置”）
-- contract: { reserveId, pool, rewardFundId } 相关链上合约/存储对象 ID
+注意事项：
+- 我注意到你在分析数量的时候经常出错，你可能并不在意decimals，比如用户某个代币数量为1000000000，在decimals为9的情况下，实际代币数量（人类可读）为1，但你总是搞错，请你认真思考这一点
+- 你需要根据用户的提问，结合当前投资组合数据，给出专业且友好的回答
+- 如果用户的问题无法从当前投资组合数据中得到答案，请礼貌告知用户，并建议用户提供更多信息
 
 请基于用户问题与以上数据，生成清晰的回答。`;
 }

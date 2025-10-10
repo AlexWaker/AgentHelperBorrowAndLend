@@ -15,8 +15,9 @@
  */
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions';
-import { coinInfo } from './CoinManager';
-import { getPools, getPool, depositCoinPTB, getLendingState } from '@naviprotocol/lending';
+// 不再使用静态 coinInfo，所有 coinType / decimals 均通过池子信息动态获取
+import { getPools, getPool, depositCoinPTB, getLendingState, withdrawCoinPTB } from '@naviprotocol/lending';
+import { sign } from 'crypto';
 
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet';
 
@@ -52,6 +53,8 @@ class SuiService {
 	private poolFetchPromise?: Promise<any[]>;
 	/** 背景预热 Promise，防止多处重复触发 */
 	private warmPromise?: Promise<void>;
+	/** 自动刷新 interval id */
+	private autoRefreshId?: any;
 
 	constructor(defaultNetwork: SuiNetwork = 'devnet') {
 		this.defaultNetwork = defaultNetwork;
@@ -85,17 +88,52 @@ class SuiService {
 		}
 	}
 
+	/**
+	 * 获取指定 symbol 的池对象（不区分大小写）。必要时触发刷新。
+	 * @param symbol 资产符号
+	 */
+	private async getPoolBySymbol(symbol: string, forceRefresh = false): Promise<any | undefined> {
+		if (!symbol) return undefined;
+		const upper = symbol.toUpperCase();
+		if (forceRefresh || !this.isPoolCacheValid()) await this.fetchAndUpdatePools();
+		let hit = this.poolCache.pools.find(p => p?.token?.symbol?.toUpperCase() === upper);
+		if (!hit) { // 再给一次强制刷新机会
+			await this.fetchAndUpdatePools();
+			hit = this.poolCache.pools.find(p => p?.token?.symbol?.toUpperCase() === upper);
+		}
+		return hit;
+	}
+
+	/** 通过 symbol 获取 coinType / decimals 元信息（SUI 特殊处理） */
+	private async getCoinMetaDynamic(symbol: string): Promise<{ coinType: string; decimals: number }> {
+		const upper = symbol.toUpperCase();
+		if (upper === 'SUI') {
+			return { coinType: '0x2::sui::SUI', decimals: 9 };
+		}
+		const pool = await this.getPoolBySymbol(upper);
+		if (!pool) throw new Error(`未知币种: ${upper}`);
+		// 优先使用 token.coinType（带 0x 前缀）；若缺失再回退顶层 coinType，并补齐 0x
+		let coinType: string | undefined = pool.token?.coinType || pool.coinType;
+		if (coinType && !coinType.startsWith('0x')) {
+			coinType = '0x' + coinType;
+		}
+		const decimals = pool.token?.decimals;
+		if (!coinType || typeof decimals !== 'number') throw new Error(`缺少币种元数据: ${upper}`);
+		return { coinType, decimals };
+	}
+
 	/** 将最小单位（字符串）转换为人类可读单位 */
-	toCoin(coin:string, balanceInMist: string): number {
-		return Number(balanceInMist) / (10**coinInfo[coin as keyof typeof coinInfo].decimals);
+	async toCoin(coin:string, balanceInMist: string): Promise<number> {
+		const { decimals } = await this.getCoinMetaDynamic(coin);
+		return Number(balanceInMist) / (10 ** decimals);
 	}
 
 	/** 将人类可读数量转换为最小单位 bigint */
-	toMist(coin: string, amountCoin: string | number): bigint {
+	async toMist(coin: string, amountCoin: string | number): Promise<bigint> {
+		const { decimals } = await this.getCoinMetaDynamic(coin);
 		const n = typeof amountCoin === 'string' ? Number(amountCoin) : amountCoin;
-		console.log('n', n);
 		if (!Number.isFinite(n) || n <= 0) throw new Error('转账金额必须是正数');
-		return BigInt(Math.round(n * (10**coinInfo[coin as keyof typeof coinInfo].decimals)));
+		return BigInt(Math.round(n * (10 ** decimals)));
 	}
 
 	/** 将当前内存池子缓存序列化并写入 localStorage（忽略写入异常） */
@@ -157,16 +195,30 @@ class SuiService {
 		return this.warmPromise;
 	}
 
+	/** 开启自动刷新（默认每 POOL_TTL_MS 触发一次更新） */
+	public startAutoRefresh(intervalMs: number = SuiService.POOL_TTL_MS) {
+		if (this.autoRefreshId) return;
+		this.autoRefreshId = setInterval(() => {
+			this.fetchAndUpdatePools().catch(() => {});
+		}, intervalMs);
+	}
+
+	/** 停止自动刷新 */
+	public stopAutoRefresh() {
+		if (this.autoRefreshId) {
+			clearInterval(this.autoRefreshId);
+			this.autoRefreshId = undefined;
+		}
+	}
+
 	/**
 	 * 查询某地址指定币种（通过 symbol）余额（单位：最小单位）
 	 */
 	async getCoinBalance(owner: string, coin: string): Promise<string> {
 		this.assertAddress(owner);
 		const client = this.client;
-		const { totalBalance } = await client.getBalance({
-			owner,
-			coinType: coinInfo[coin as keyof typeof coinInfo].coinType,
-		});
+		const { coinType } = await this.getCoinMetaDynamic(coin);
+		const { totalBalance } = await client.getBalance({ owner, coinType });
 		return totalBalance;
 	}
 
@@ -232,13 +284,9 @@ class SuiService {
 				if (hit) return hit; // 直接返回缓存对象
 				return await getPool(identifier, { env: this.mapEnv() }); // 兜底精确请求
 			} else {
-				const upper = String(identifier).toUpperCase();
-				// 静态 coinInfo 模式下，只允许已知 symbol；否则直接报错
-				const meta = coinInfo[upper as keyof typeof coinInfo];
-				if (!meta) throw new Error('未知币种(静态表)，请确认该 symbol 是否受支持');
-				const hit = this.poolCache.pools.find(p => p?.token?.symbol?.toUpperCase() === upper);
-				if (hit) return hit;
-				return await getPool(meta.coinType, { env: this.mapEnv() });
+				const pool = await this.getPoolBySymbol(String(identifier));
+				if (pool) return pool;
+				throw new Error('未知币种, 请确认 symbol 是否正确');
 			}
 		} catch (error) {
 			console.error('Error fetching Navi pool:', error);
@@ -246,7 +294,7 @@ class SuiService {
 		}
 	}
 	/** 获取全部池子（可选强制刷新） */
-	private async getNaviPools(forceRefresh = false): Promise<any[]> {
+	async getNaviPools(forceRefresh = false): Promise<any[]> {
 		try {
 			if (!forceRefresh && this.isPoolCacheValid()) return this.poolCache.pools;
 			return await this.fetchAndUpdatePools();
@@ -261,11 +309,12 @@ class SuiService {
 		return pools.map(pool => this.normalizePool(pool));
 	}
 	/** 查询地址在 Navi 上的借贷资产列表 */
-	async getNaviLendingState(depositAddress: string): Promise<any> {
+	async getNaviLendingState(depositAddress: any): Promise<any> {
 		this.assertAddress(depositAddress);
 		console.log('Fetching lending state for:', depositAddress);
 		try {
 			const allPortfolio = await getLendingState(depositAddress, { env: this.mapEnv() });
+			console.log('Lending state fetched:', allPortfolio);
 			return allPortfolio
 		} catch (error) {
 			console.error('Error fetching lending state:', error);
@@ -280,7 +329,7 @@ class SuiService {
 	 */
 	private async consolidateCoins(tx: Transaction, owner: string, coin: string, amountMist: bigint): Promise<{ coinObject: any; total: bigint }> {
 		this.assertAddress(owner);
-		const coinType = coinInfo[coin as keyof typeof coinInfo].coinType;
+		const { coinType } = await this.getCoinMetaDynamic(coin);
 		const allCoins = await this.client.getCoins({ owner, coinType });
 		if (allCoins.data.length === 0) throw new Error('余额不足');
 		const total = allCoins.data.reduce((sum, c) => sum + BigInt(c.balance), 0n);
@@ -317,9 +366,7 @@ class SuiService {
 		if (!poolInfo) throw new Error('未找到有效的池子信息');
 		const symbol = poolInfo.token.symbol.toUpperCase();
 		if (depositSymbol !== 'UNKNOWN' && symbol !== depositSymbol.toUpperCase()) throw new Error('质押币种与池子不匹配');
-		const coinKey = symbol as keyof typeof coinInfo;
-		if (!coinInfo[coinKey]) throw new Error('不支持的币种');
-		const decimals = coinInfo[coinKey].decimals;
+		const { decimals, coinType } = await this.getCoinMetaDynamic(symbol);
 		let amountHuman: number;
 		if (depositUnit === 'USD') {
 			const priceStr = poolInfo.oracle.price;
@@ -335,7 +382,7 @@ class SuiService {
 		if (total < amountMist) throw new Error('余额不足');
 		await depositCoinPTB(
 			tx as any, // 兼容 @mysten/sui 在依赖树里重复版本导致的类型私有字段不匹配
-			poolInfo.coinType,
+			coinType,
 			coinObject,
 		);
 		return tx;
@@ -344,6 +391,30 @@ class SuiService {
 	async depositCoin(params: { depositAddress: string, depositId: number, depositSymbol: string, depositAmount: number, depositUnit: string, signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
 		const { depositAddress, depositId, depositSymbol, depositAmount, depositUnit, signer, chain } = params;
 		const tx = await this.buildCoinDepositTransaction({ depositAddress, depositId, depositSymbol, depositAmount, depositUnit });
+		return signer({ transaction: tx, chain });
+	}
+	async buildCoinWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {
+		const { coinType, amount, withdrawAddress, accountCapId } = params;
+		if (!coinType) throw new Error('必须指定币种');
+		if (amount <= 0n) throw new Error('必须指定金额');
+		this.assertAddress(withdrawAddress);
+		if (amount > BigInt(Number.MAX_SAFE_INTEGER)) {
+			throw new Error('当前实现暂不支持超过 MAX_SAFE_INTEGER 的提现金额');
+		}
+		const tx = new Transaction();
+		const withdrawCoin = await withdrawCoinPTB(
+			tx as any, // 兼容 @mysten/sui 在依赖树里重复版本导致的类型私有字段不匹配
+			coinType,
+			Number(amount),
+			{ env: this.mapEnv(), accountCap: accountCapId }
+		);
+		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress));
+		return tx;
+	}
+	async withdrawCoin(params: { coinType: string; amount: string; withdrawAddress: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
+		const { coinType, amount, withdrawAddress, accountCapId, signer, chain } = params;
+		const amountBigInt = BigInt(amount);
+		const tx = await this.buildCoinWithdrawTransaction({ coinType, amount: amountBigInt, withdrawAddress, accountCapId });
 		return signer({ transaction: tx, chain });
 	}
 }

@@ -25,6 +25,7 @@ import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
 import { queryPortfolioPrompt, queryNotClear, queryPortfolioResultPrompt } from './QueryPortfolioPrompt';
+import { withdrawPortfolioPrompt } from './WithdrawPortfolioPrompt';
 
 class OpenAIService {
   private client: OpenAI;
@@ -125,14 +126,19 @@ class OpenAIService {
     try {
       console.debug(`[${logPrefix}] 请求开始，消息数: ${messages.length}`);
     } catch {}
+    // const completion = await this.client.chat.completions.create({
+    //   model: this.model,
+    //   messages: messages,
+    //   max_tokens: 5000,
+    //   temperature: 0.2,
+    //   stream: false,
+    // }); deepseek写法
     const completion = await this.client.chat.completions.create({
       model: this.model,
       messages: messages,
-      max_tokens: 1000,
-      temperature: 0.2,
+      max_completion_tokens: 5000,
       stream: false,
     });
-
     const content = completion.choices[0]?.message?.content;
 
     if (!content) {
@@ -146,7 +152,7 @@ class OpenAIService {
   async processWithAgent(
     messages: Message[],
     isWalletConnected: boolean,
-    walletAddress?: string,
+    walletAddress: string | undefined,
     signer?: (args: { transaction: any; chain?: string }) => Promise<any>
   ): Promise<string> {
     // 入口：对话 + 上下文 -> 识别意图 -> 执行业务 -> 再组织自然语言反馈
@@ -177,7 +183,7 @@ class OpenAIService {
       switch (parsed.intent) {
         case intentType.QUERY_POOLS: {
           try{
-            const pools = await suiService.getNaviPoolsSimple();
+            const pools = await suiService.getNaviPools();
             const poolQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
               { role: 'system', content: queryPoolResultPrompt(pools) },
               ...openAIMessages
@@ -254,7 +260,7 @@ class OpenAIService {
             const address = balanceParsed.address;
             try {
               const balanceMist = await suiService.getCoinBalance(address, balanceParsed.coin.toUpperCase());
-              const balanceSui = suiService.toCoin(balanceParsed.coin.toUpperCase(), balanceMist);
+              const balanceSui = await suiService.toCoin(balanceParsed.coin.toUpperCase(), balanceMist);
               const short = address.length > 10 ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
               const queryResult =  `地址 ${short} 的 ${balanceParsed.coin} 余额：${balanceSui} ${balanceParsed.coin}（${balanceMist} MIST）`;
               console.log('查询结果:', queryResult);
@@ -297,7 +303,7 @@ class OpenAIService {
                 from: fromAddress,
                 to: toAddress,
                 coin: coin.toUpperCase(),
-                amountMist: suiService.toMist(coin.toUpperCase(), amount),
+                amountMist: await suiService.toMist(coin.toUpperCase(), amount),
                 signer
               });
 
@@ -341,6 +347,7 @@ class OpenAIService {
               // 直接传原始对象，由 queryPortfolioResultPrompt 内部负责 JSON.stringify 与截断。
               const portfolioMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
                 { role: 'system', content: queryPortfolioResultPrompt(portfolio) },
+                ...openAIMessages
               ];
               const portfolioContent = await this.callOpenAIAPI(portfolioMessages, '投资组合查询结果');
               return portfolioContent;
@@ -359,8 +366,38 @@ class OpenAIService {
             return queryNotClearContent || '（空回复）';
           }
         case intentType.WITHDRAW:
-          return '赎回功能正在开发中，敬请期待！'; 
-
+          // 这里必须先查当前地址的投资组合
+          const portfolioInfo = await suiService.getNaviLendingState(walletAddress); //强类型检查真烦人
+          const withdrawMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: withdrawPortfolioPrompt(portfolioInfo) },
+            ...openAIMessages
+          ];
+          const withdrawContent = await this.callOpenAIAPI(withdrawMessages, '投资组合提现');
+          const withdrawParsed = this.extractAndParseJSON<{ coinType: string, amount: string, errorMessage: string, reasoning: string }>(withdrawContent);
+          console.log("withdrawParsed", withdrawParsed)
+          if (withdrawParsed.errorMessage) {
+            return withdrawParsed.errorMessage;
+          }
+          try {
+            if (!signer) {
+              return '无法发起提现：未提供钱包签名器，请先连接钱包或传入 signer。';
+            }
+            if (!walletAddress) {
+              return '无法发起提现：钱包地址未定义，请先连接钱包。';
+            }
+            // 构建 + 发送交易
+            const withdrawResult = await suiService.withdrawCoin({
+              coinType: withdrawParsed.coinType,
+              amount: withdrawParsed.amount,
+              withdrawAddress: walletAddress,
+              signer
+            });
+            return withdrawResult;
+            // return '提现功能开发中，敬请期待';
+          } catch (e) {
+            console.error('提现失败:', e);
+            return '提现失败，请稍后重试。';
+          }
         default:
           // 兜底：无匹配意图 -> 普通对话 / 闲聊
           const casualMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -375,11 +412,9 @@ class OpenAIService {
       
     } catch (error) {
       console.error('OpenAI API 调用失败:', error);
-      
       if (error instanceof Error) {
         throw error;
       }
-      
       throw new Error('网络连接失败，请检查网络设置');
     }
   }

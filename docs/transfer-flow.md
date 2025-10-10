@@ -63,7 +63,7 @@ const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
 const response = await openAIService.processWithAgent(
   conversationHistory,
   !!currentAccount,
-  currentAccount?.address,
+  currentAccount.address,
   async ({ transaction }) => {
     // 拉起钱包签名 + 执行
     return await signAndExecute({ transaction });

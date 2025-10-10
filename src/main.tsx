@@ -33,4 +33,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 // 允许静默失败
 Promise.resolve().then(() => {
   try { suiService.warmPools(); } catch {}
+  try { suiService.startAutoRefresh(); } catch {}
 });

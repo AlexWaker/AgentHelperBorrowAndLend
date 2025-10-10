@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.22.0",
     "@mysten/dapp-kit": "0.17.2",
     "@mysten/sui": "1.37.1",
     "@mysten/suins": "^0.7.35",
