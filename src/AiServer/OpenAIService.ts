@@ -24,6 +24,7 @@ import { suiService } from '../SuiServer/SuiService';
 import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
+import { borrowPrompt, borrowNotClear } from './BorrowPrompt';
 import { queryPortfolioPrompt, queryNotClear, queryPortfolioResultPrompt } from './QueryPortfolioPrompt';
 import { withdrawPortfolioPrompt } from './WithdrawPortfolioPrompt';
 
@@ -248,6 +249,61 @@ class OpenAIService {
           }
           return '未能完成质押操作';
         }
+        case intentType.BORROW: {
+          const borrowMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: borrowPrompt(walletAddress) },
+            ...openAIMessages
+          ];
+          const borrowContent = await this.callOpenAIAPI(borrowMessages, '借款分析');
+          console.log('借款分析回复:', borrowContent);
+          const borrowParsed = this.extractAndParseJSON<{ address: string; id: number; symbol: string; amount: number; unit: string; accountCapId?: string; isValid: boolean; errorMessage?: string; reasoning?: string }>(borrowContent);
+          const borrowSymbol = (borrowParsed.symbol || 'UNKNOWN').toUpperCase();
+          const borrowUnit = (borrowParsed.unit || '').toUpperCase();
+          const borrowAccountCapId = borrowParsed.accountCapId && borrowParsed.accountCapId !== 'NONE' ? borrowParsed.accountCapId : undefined;
+          if (!borrowParsed.isValid) {
+            const borrowClarifyMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: borrowNotClear() },
+              ...openAIMessages,
+              { role: 'user', content: borrowParsed.errorMessage || borrowParsed.reasoning || '请根据用户最后的输入进行回复。' }
+            ];
+            const borrowClarifyContent = await this.callOpenAIAPI(borrowClarifyMessages, '借款指令不清晰');
+            return borrowClarifyContent || '（空回复）';
+          }
+          if (borrowParsed.id === -1 && borrowSymbol === 'UNKNOWN') {
+            return '无法发起借款：缺少目标池子信息，请提供池子 id 或代币符号。';
+          }
+          if (!Number.isFinite(borrowParsed.amount) || borrowParsed.amount <= 0) {
+            return '无法发起借款：借款金额无效，请检查后重新输入。';
+          }
+          if (!borrowUnit) {
+            return '无法发起借款：缺少借款金额单位，请补充是 USD 还是具体币种。';
+          }
+          try {
+            if (!signer) {
+              return '无法发起借款：未提供钱包签名器，请先连接钱包或传入 signer。';
+            }
+            if (!walletAddress) {
+              return '无法发起借款：钱包地址未定义，请先连接钱包。';
+            }
+            const borrowResult = await suiService.borrowCoin({
+              borrowAddress: walletAddress,
+              borrowId: borrowParsed.id,
+              borrowSymbol,
+              borrowAmount: borrowParsed.amount,
+              borrowUnit: borrowUnit,
+              accountCapId: borrowAccountCapId,
+              signer
+            });
+            if (borrowResult?.digest) {
+              return `借款提交成功，交易哈希: ${borrowResult.digest}`;
+            }
+            console.log('借款结果:', borrowResult);
+            return '借款已提交，请在钱包内查看进度。';
+          } catch (e) {
+            console.error('借款失败:', e);
+            return '借款失败，请稍后重试。';
+          }
+        }
         case intentType.QUERY_BALANCE:
           // 余额查询：第二次调用用于生成用户友好的结果表达
           const balanceQueryMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -392,7 +448,11 @@ class OpenAIService {
               withdrawAddress: walletAddress,
               signer
             });
-            return withdrawResult;
+            if (withdrawResult?.digest) {
+              return `提现提交成功，交易哈希: ${withdrawResult.digest}`;
+            }
+            console.log('提现结果:', withdrawResult);
+            return '提现已提交，请在钱包内查看进度。';
             // return '提现功能开发中，敬请期待';
           } catch (e) {
             console.error('提现失败:', e);

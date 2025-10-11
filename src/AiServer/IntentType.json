@@ -3,6 +3,7 @@
   "TRANSFER": "转账",
   "QUERY_POOLS": "查询NAVI资金池信息",
   "DEPOSIT": "质押",
+  "BORROW": "借款",
   "QUERY_PORTFOLIO": "查询投资组合",
   "WITHDRAW": "赎回",
   "OTHER": "其他"

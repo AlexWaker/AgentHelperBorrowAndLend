@@ -16,8 +16,7 @@
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions';
 // 不再使用静态 coinInfo，所有 coinType / decimals 均通过池子信息动态获取
-import { getPools, getPool, depositCoinPTB, getLendingState, withdrawCoinPTB } from '@naviprotocol/lending';
-import { sign } from 'crypto';
+import { getPools, getPool, depositCoinPTB, getLendingState, withdrawCoinPTB, borrowCoinPTB } from '@naviprotocol/lending';
 
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet';
 
@@ -393,6 +392,51 @@ class SuiService {
 		const tx = await this.buildCoinDepositTransaction({ depositAddress, depositId, depositSymbol, depositAmount, depositUnit });
 		return signer({ transaction: tx, chain });
 	}
+	async buildCoinBorrowTransaction(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string }): Promise<Transaction> {
+		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId } = params;
+		if (!borrowAddress) throw new Error('需要提供借款接收地址');
+		if (borrowAmount <= 0) throw new Error('借款金额必须大于 0');
+		let poolInfo: any = null;
+		if (borrowId !== -1) {
+			poolInfo = await this.getNaviPool(borrowId);
+		} else {
+			poolInfo = await this.getNaviPool(borrowSymbol);
+		}
+		if (!poolInfo) throw new Error('未找到有效的池子信息');
+		const symbol = poolInfo.token.symbol.toUpperCase();
+		if (borrowSymbol !== 'UNKNOWN' && symbol !== borrowSymbol.toUpperCase()) throw new Error('借款币种与池子不匹配');
+		const unit = borrowUnit.toUpperCase();
+		const { decimals, coinType } = await this.getCoinMetaDynamic(symbol);
+		let amountHuman: number;
+		if (unit === 'USD') {
+			const priceStr = poolInfo.oracle.price;
+			const price = Number(priceStr);
+			if (!Number.isFinite(price) || price <= 0) throw new Error('无法获取币种价格');
+			amountHuman = borrowAmount / price;
+		} else {
+			amountHuman = borrowAmount;
+		}
+		if (!Number.isFinite(amountHuman) || amountHuman <= 0) throw new Error('借款金额必须大于 0');
+		const amountMist = BigInt(Math.round(amountHuman * 10 ** decimals));
+		if (amountMist <= 0n) throw new Error('借款金额必须大于 0');
+		if (amountMist > BigInt(Number.MAX_SAFE_INTEGER)) {
+			throw new Error('当前实现暂不支持超过 MAX_SAFE_INTEGER 的借款金额');
+		}
+		const tx = new Transaction();
+		const borrowCoin = await borrowCoinPTB(
+			tx as any,
+			coinType,
+			Number(amountMist),
+			{ env: this.mapEnv(), accountCap: accountCapId && accountCapId !== 'NONE' ? accountCapId : undefined }
+		);
+		tx.transferObjects([borrowCoin], tx.pure.address(borrowAddress));
+		return tx;
+	}
+	async borrowCoin(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
+		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId, signer, chain } = params;
+		const tx = await this.buildCoinBorrowTransaction({ borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId });
+		return signer({ transaction: tx, chain });
+	}
 	async buildCoinWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {
 		const { coinType, amount, withdrawAddress, accountCapId } = params;
 		if (!coinType) throw new Error('必须指定币种');
@@ -408,7 +452,8 @@ class SuiService {
 			Number(amount),
 			{ env: this.mapEnv(), accountCap: accountCapId }
 		);
-		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress));
+		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress)); // 这一步只是把 transferObject打包到tx中，不是真正的所有权转移，所有权转移需要signer下拉钱包签名
+		console.log('tx', tx);
 		return tx;
 	}
 	async withdrawCoin(params: { coinType: string; amount: string; withdrawAddress: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
