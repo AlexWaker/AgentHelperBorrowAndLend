@@ -431,7 +431,7 @@ class SuiService {
 		);
 		tx.transferObjects([borrowCoin], tx.pure.address(borrowAddress));
 		return tx;
-	}
+	} // 阿斯顿
 	async borrowCoin(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
 		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId, signer, chain } = params;
 		const tx = await this.buildCoinBorrowTransaction({ borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId });
