@@ -5,27 +5,40 @@ export const transferCoinPrompt = (walletAddress: string | undefined): string =>
     上下文：当前钱包=${walletAddress || '未连接'}
 
     请从用户输入中抽取并校验：
-    - toAddress：0x 开头的 Sui 地址
-    - amount：> 0
+    - fromAddress：若用户声明自己的地址，需与当前钱包一致
+    - toAddress：0x 开头的 Sui 地址，长度至少 66 位
+    - coin：代币符号（默认 SUI），使用全大写
+    - amount：大于 0 的数字
+    - unit：金额单位，支持以下取值：
+      * 币种符号（默认值，与 coin 相同，表示“人类可读数量”）
+      * "USD" 表示按美元金额转账
+      * "PERCENT" 表示按百分比转账（amount 范围 0-100，对应当前余额的百分比）
 
-    以下任一情况判定 isValid=false：缺少地址/金额、地址非法或多个地址，提供的地址（如果用户自己提供的话）并非当前钱包地址、金额≤0、未连接钱包、指令含糊。
+    【判定 isValid=false 的情况】
+    - 未连接钱包（当前钱包为 "未连接"）
+    - 缺少 toAddress / amount / coin 信息
+    - toAddress 不是合法的 0x 地址或出现多个目标地址
+    - 用户声明的 fromAddress 与当前钱包地址不一致
+    - 金额 <= 0 或无法解析为数字
+    - unit 为 "PERCENT" 时 amount 不在 0-100 范围内
 
     仅输出 JSON（不要附加解释）：
     {
-        "fromAddress": 当前钱包地址,
-        "toAddress": 收款地址,
-        "amount": 转账数量（数字）,
-        "coin": 代币名称,
-        "memo": "",
-        "isValid": true/false,
-        "errorMessage": ""
+      "fromAddress": 当前钱包地址,
+      "toAddress": 收款地址,
+      "amount": 转账数量（数字）, 
+      "coin": 代币名称（大写）, 
+      "unit": 金额单位（币种 / USD / PERCENT）, 
+      "memo": "",
+      "isValid": true/false,
+      "errorMessage": ""
     }
 
     用户输入：`;
     };
 
 export const transferNotClear = (): string => {
-    return `转账信息不完整。请补充：收款地址(0x...)、金额`;
+  return `转账信息不完整。请补充：收款地址(0x...)、金额与单位（币种 / USD / 百分比）`;
 }
 
 export const transferResultPrompt = (transferInfo: any): string => {

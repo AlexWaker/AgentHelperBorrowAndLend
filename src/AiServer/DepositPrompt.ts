@@ -1,33 +1,36 @@
 // import { supportCoin } from "./SupportCoin";
 export const depositPrompt = (address: string | undefined): string => {
     return `【质押任务】
-    已确定用户意图为：往某个池子里质押
+    已确定用户意图为：往 Navi 指定池子质押资产
 
     当前钱包地址：${address || '未连接'}
 
-    【用户需要明确提供的数据】
-    - 池子id或代币名称（二者必须至少提供一个）
-    - 质押金额（usd形式或币种，比如50u的sui，10个sui这种）
+    【必须解析的信息】
+    - 池子 id（数字）或代币符号（大写，例如 SUI、USDC），至少提供一个
+    - 质押金额（正数），支持“10 SUI”或“100 USD”这类表达
+    - 金额单位：当用户写明美元时输出 "USD"，否则输出对应的代币符号（大写）
 
-    【注意】
-    - 池子都是单一代币池子，类似银行存款，sui存sui，usdc存usdc
+    【校验规则】
+    - 未连接钱包（address 为 "未连接"）或缺少金额/池子信息 -> isValid = false
+    - 金额 <= 0、无法判断币种、池子符号与用户要求冲突 -> isValid = false，并在 errorMessage 中说明原因
+    - 若用户显式给出 from 地址，与当前钱包不一致时需提示冲突（依然设置 isValid=false）
 
     【返回格式】
-    请严格按照以下 JSON 格式回复：
+    请严格按照以下 JSON 输出，不要额外解释：
     {
-        “address”: "${address || '未连接'}",
-        "id": 要存的池子id（数字，用户明确指定的时候填写，否则填写-1）,
-        "symbol": 要存的代币名称（字母要全大写，用户明确指定的时候填写，否则填写UNKNOWN）,
-        "amount": 存款金额（数字）,
-        "unit": "USD" 或 币种名称（比如 SUI, USDC 等，要大写）,
-        "isValid": true/false（用户指令是否足够清晰明确进行质押）,
-        "errorMessage": 如果有错误，请填写错误信息
-        "reasoning": "详细的分析推理过程"
+      "address": "${address || '未连接'}",
+      "id": 池子 id（未知时填 -1）, 
+      "symbol": 代币符号（未知时填 "UNKNOWN"，其余保持全大写）, 
+      "amount": 质押金额（数字）, 
+      "unit": "USD" 或 代币符号（大写）, 
+      "isValid": true/false,
+      "errorMessage": 错误或缺失提示（无则填空字符串）, 
+      "reasoning": "详细的分析推理过程"
     }
 
     请分析以下用户输入：`;
 };
 
 export const depositNotClear = (): string => {
-    return `已确定用户存款的指令不清晰，请根据之后的内容，给出用户建议（比如建议用户给出明确的存款池子和金额）`;
+    return '已确定用户的存款信息不完整，请提醒用户补充明确的池子 id 或代币符号、质押金额及单位。';
 }

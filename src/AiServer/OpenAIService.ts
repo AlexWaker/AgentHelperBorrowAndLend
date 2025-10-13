@@ -343,10 +343,11 @@ class OpenAIService {
           const transferContent = await this.callOpenAIAPI(transferMessages, '转账分析');
           console.log('转账分析回复:', transferContent);
 
-          const transferParsed = this.extractAndParseJSON<{ fromAddress: string, toAddress: string, coin: string, amount: number, isValid: boolean, errorMessage: string }>(transferContent);
+          const transferParsed = this.extractAndParseJSON<{ fromAddress: string, toAddress: string, coin: string, amount: number, unit?: string, isValid: boolean, errorMessage: string }>(transferContent);
           console.log('转账解析结果:', transferParsed);
           if (transferParsed.isValid) {
             const { fromAddress, toAddress, coin, amount } = transferParsed;
+            const unit = (transferParsed.unit || '').toUpperCase();
             try {
               if (!signer) {
                 return '无法发起转账：未提供钱包签名器，请先连接钱包或传入 signer。';
@@ -354,12 +355,25 @@ class OpenAIService {
               if (!walletAddress) {
                 return '无法发起转账：钱包地址未定义，请先连接钱包。';
               }
-              // 构建 & 发送交易（使用 toMist 把人类单位转最小单位）
-              const transferResult = await suiService.transferSui({
-                from: fromAddress,
+              const senderAddress = fromAddress || walletAddress;
+              if (!senderAddress) {
+                return '无法发起转账：缺少发送方地址信息。';
+              }
+              if (senderAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+                return '无法发起转账：发送方地址与当前钱包不一致。';
+              }
+              const amountMist = await suiService.calculateTransferAmount({
+                fromAddress: senderAddress,
+                coin: coin.toUpperCase(),
+                amount,
+                unit: unit || coin.toUpperCase(),
+              });
+              // 构建 & 发送交易（calculateTransferAmount 已完成单位换算）
+              const transferResult = await suiService.transferCoin({
+                from: senderAddress,
                 to: toAddress,
                 coin: coin.toUpperCase(),
-                amountMist: await suiService.toMist(coin.toUpperCase(), amount),
+                amountMist,
                 signer
               });
 
@@ -381,6 +395,9 @@ class OpenAIService {
 
             } catch (e) {
               console.error('转账失败:', e);
+              if (e instanceof Error && e.message) {
+                return `转账失败：${e.message}`;
+              }
               return '转账失败，请稍后重试。';
             }
           } else {

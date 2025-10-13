@@ -121,6 +121,113 @@ class SuiService {
 		return { coinType, decimals };
 	}
 
+	/** 标准化 coinType，允许传入无 0x 前缀的写法 */
+	private normalizeCoinType(raw: string): string {
+		if (!raw || typeof raw !== 'string') throw new Error('必须指定有效的币种类型');
+		const trimmed = raw.trim();
+		if (!trimmed) throw new Error('必须指定有效的币种类型');
+		return trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
+	}
+
+	/**
+	 * 根据 id / symbol 拉取池子并做一致性校验。
+	 * 复用在存款与借款逻辑中，避免分支不一致。
+	 */
+	private async resolvePoolOrThrow(params: { id: number; symbol: string; context: 'deposit' | 'borrow' }): Promise<{ poolInfo: any; symbol: string }> {
+		const { id, symbol, context } = params;
+		const hasId = typeof id === 'number' && id !== -1;
+		const hasSymbol = !!symbol && symbol !== 'UNKNOWN';
+		if (!hasId && !hasSymbol) {
+			throw new Error(`必须指定${context === 'deposit' ? '质押' : '借款'}池子 id 或币种符号`);
+		}
+
+		let poolInfo: any = null;
+		if (hasId) {
+			poolInfo = await this.getNaviPool(id);
+		}
+		if (!poolInfo && hasSymbol) {
+			poolInfo = await this.getNaviPool(symbol);
+		}
+		if (!poolInfo) {
+			throw new Error('未找到有效的池子信息');
+		}
+
+		const resolvedSymbol = poolInfo.token?.symbol?.toUpperCase() || 'UNKNOWN';
+		if (hasSymbol && resolvedSymbol !== symbol.toUpperCase()) {
+			throw new Error('提供的币种符号与池子信息不匹配');
+		}
+		return { poolInfo, symbol: resolvedSymbol };
+	}
+
+	private ensureNumberAmount(value: number, errorMessage: string): void {
+		if (!Number.isFinite(value) || value <= 0) {
+			throw new Error(errorMessage);
+		}
+	}
+
+	/**
+	 * 将“人类可读”数量转换为最小单位，带有安全检查。
+	 */
+	private toMistWithCheck(amount: number, decimals: number, context: string): bigint {
+		const scaled = amount * 10 ** decimals;
+		if (!Number.isFinite(scaled) || scaled <= 0) {
+			throw new Error(`${context}金额必须大于 0`);
+		}
+		if (Math.round(scaled) > Number.MAX_SAFE_INTEGER) {
+			throw new Error(`${context}金额过大，暂不支持超过 MAX_SAFE_INTEGER 的交易`);
+		}
+		return BigInt(Math.round(scaled));
+	}
+
+	/**
+	 * 依据不同单位（币种、USD、百分比）计算转账所需的最小单位金额。
+	 */
+	public async calculateTransferAmount(params: { fromAddress: string; coin: string; amount: number; unit?: string }): Promise<bigint> {
+		const { fromAddress, coin, amount } = params;
+		let { unit } = params;
+		this.assertAddress(fromAddress);
+		this.ensureNumberAmount(amount, '转账金额必须大于 0');
+		const symbol = coin.toUpperCase();
+		unit = (unit || symbol).toUpperCase();
+		const { decimals } = await this.getCoinMetaDynamic(symbol);
+		if (unit === symbol) {
+			return this.toMistWithCheck(amount, decimals, '转账');
+		}
+		if (unit === 'USD') {
+			const pool = await this.getPoolBySymbol(symbol);
+			if (!pool) {
+				throw new Error('无法获取币种价格，暂不支持按美元金额转账');
+			}
+			const price = Number(pool.oracle?.price);
+			if (!Number.isFinite(price) || price <= 0) {
+				throw new Error('无法获取币种价格，暂不支持按美元金额转账');
+			}
+			const amountHuman = amount / price;
+			return this.toMistWithCheck(amountHuman, decimals, '转账');
+		}
+		if (unit === 'PERCENT' || unit === '%') {
+			if (amount > 100) {
+				throw new Error('百分比需在 0-100 范围内');
+			}
+			const balanceMistStr = await this.getCoinBalance(fromAddress, symbol);
+			const balanceMist = BigInt(balanceMistStr || '0');
+			if (balanceMist <= 0n) {
+				throw new Error('账户余额为 0，无法按百分比转账');
+			}
+			const scale = 10000n; // 保留 4 位小数精度
+			const scaledPercent = BigInt(Math.floor(amount * Number(scale)));
+			const amountMist = (balanceMist * scaledPercent) / (scale * 100n);
+			if (amountMist <= 0n) {
+				throw new Error('按百分比计算得到的金额过小，请提高百分比');
+			}
+			if (amountMist > balanceMist) {
+				throw new Error('按百分比计算的金额超过余额');
+			}
+			return amountMist;
+		}
+		throw new Error('暂不支持的金额单位，请使用币种、USD 或百分比');
+	}
+
 	/** 将最小单位（字符串）转换为人类可读单位 */
 	async toCoin(coin:string, balanceInMist: string): Promise<number> {
 		const { decimals } = await this.getCoinMetaDynamic(coin);
@@ -235,15 +342,22 @@ class SuiService {
 		amountMist: bigint;
 		network?: SuiNetwork;
 	}): Promise<Transaction> {
+		this.assertAddress(params.from);
 		this.assertAddress(params.to);
+		if (params.amountMist <= 0n) {
+			throw new Error('转账金额必须大于 0');
+		}
 		const tx = new Transaction();
-		const { coinObject } = await this.consolidateCoins(tx, params.from, params.coin, params.amountMist);
+		const { coinObject, total } = await this.consolidateCoins(tx, params.from, params.coin, params.amountMist);
+		if (total < params.amountMist) {
+			throw new Error('余额不足');
+		}
 		tx.transferObjects([coinObject], tx.pure.address(params.to));
 		return tx;
 	}
 
 	/** 直接完成构建 + 调用外部 signer 发送 */
-	async transferSui(params: {
+	async transferCoin(params: {
 		from: string;
 		to: string;
 		coin: string;
@@ -255,6 +369,19 @@ class SuiService {
 		const { from, to, coin, amountMist, signer, chain } = params;
 		const tx = await this.buildCoinTransferTransaction({ from, to, coin, amountMist });
 		return await signer({ transaction: tx, chain });
+	}
+
+	/** 兼容旧命名 */
+	async transferSui(params: {
+		from: string;
+		to: string;
+		coin: string;
+		amountMist: bigint;
+		signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>;
+		network?: SuiNetwork;
+		chain?: string;
+	}): Promise<{ digest?: string } | any> {
+		return this.transferCoin(params);
 	}
 
 	// ---------------- Navi 相关辅助 ----------------
@@ -351,31 +478,27 @@ class SuiService {
 	 * - 支持 USD 单位换算（通过 oracle price）
 	 * - 动态计算最小单位并拆分/合并余额
 	 */
-	async buildCoinDepositTransaction(params: { depositAddress: string, depositId: number; depositSymbol: string; depositAmount: number; depositUnit: string }): Promise<Transaction> {
+	async buildCoinDepositTransaction(params: { depositAddress: string; depositId: number; depositSymbol: string; depositAmount: number; depositUnit: string }): Promise<Transaction> {
 		const { depositAddress, depositId, depositSymbol, depositAmount, depositUnit } = params;
-		if (depositId === -1 && depositSymbol === 'UNKNOWN') throw new Error('必须指定质押池id或币种');
-		if (depositAmount <= 0) throw new Error('金额必须大于 0');
-		if (!depositAddress) throw new Error('需要提供 from 地址用于合并与拆分代币');
-		let poolInfo: any = null;
-		if (depositId !== -1){
-			poolInfo = await this.getNaviPool(depositId);
-		} else {
-			poolInfo = await this.getNaviPool(depositSymbol);
-		}
-		if (!poolInfo) throw new Error('未找到有效的池子信息');
-		const symbol = poolInfo.token.symbol.toUpperCase();
-		if (depositSymbol !== 'UNKNOWN' && symbol !== depositSymbol.toUpperCase()) throw new Error('质押币种与池子不匹配');
+		if (!depositAddress) throw new Error('需要提供质押地址');
+		this.assertAddress(depositAddress);
+		this.ensureNumberAmount(depositAmount, '质押金额必须大于 0');
+		const { poolInfo, symbol } = await this.resolvePoolOrThrow({ id: depositId, symbol: depositSymbol, context: 'deposit' });
+		const normalizedUnit = (depositUnit || '').toUpperCase() || symbol;
 		const { decimals, coinType } = await this.getCoinMetaDynamic(symbol);
 		let amountHuman: number;
-		if (depositUnit === 'USD') {
-			const priceStr = poolInfo.oracle.price;
-			const price = Number(priceStr);
-			if (!Number.isFinite(price) || price <= 0) throw new Error('无法获取币种价格');
+		if (normalizedUnit === 'USD') {
+			const price = Number(poolInfo.oracle?.price);
+			if (!Number.isFinite(price) || price <= 0) {
+				throw new Error('无法获取币种价格');
+			}
 			amountHuman = depositAmount / price;
-		} else {
+		} else if (normalizedUnit === symbol) {
 			amountHuman = depositAmount;
+		} else {
+			throw new Error('质押金额单位与池子币种不匹配');
 		}
-		const amountMist = BigInt(Math.round(amountHuman * 10 ** decimals)); // 用户要存的数量
+		const amountMist = this.toMistWithCheck(amountHuman, decimals, '质押');
 		const tx = new Transaction();
 		const { coinObject, total } = await this.consolidateCoins(tx, depositAddress, symbol, amountMist);
 		if (total < amountMist) throw new Error('余额不足');
@@ -395,33 +518,24 @@ class SuiService {
 	async buildCoinBorrowTransaction(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string }): Promise<Transaction> {
 		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId } = params;
 		if (!borrowAddress) throw new Error('需要提供借款接收地址');
-		if (borrowAmount <= 0) throw new Error('借款金额必须大于 0');
-		let poolInfo: any = null;
-		if (borrowId !== -1) {
-			poolInfo = await this.getNaviPool(borrowId);
-		} else {
-			poolInfo = await this.getNaviPool(borrowSymbol);
-		}
-		if (!poolInfo) throw new Error('未找到有效的池子信息');
-		const symbol = poolInfo.token.symbol.toUpperCase();
-		if (borrowSymbol !== 'UNKNOWN' && symbol !== borrowSymbol.toUpperCase()) throw new Error('借款币种与池子不匹配');
-		const unit = borrowUnit.toUpperCase();
+		this.assertAddress(borrowAddress);
+		this.ensureNumberAmount(borrowAmount, '借款金额必须大于 0');
+		const { poolInfo, symbol } = await this.resolvePoolOrThrow({ id: borrowId, symbol: borrowSymbol, context: 'borrow' });
+		const normalizedUnit = (borrowUnit || '').toUpperCase() || symbol;
 		const { decimals, coinType } = await this.getCoinMetaDynamic(symbol);
 		let amountHuman: number;
-		if (unit === 'USD') {
-			const priceStr = poolInfo.oracle.price;
-			const price = Number(priceStr);
-			if (!Number.isFinite(price) || price <= 0) throw new Error('无法获取币种价格');
+		if (normalizedUnit === 'USD') {
+			const price = Number(poolInfo.oracle?.price);
+			if (!Number.isFinite(price) || price <= 0) {
+				throw new Error('无法获取币种价格');
+			}
 			amountHuman = borrowAmount / price;
-		} else {
+		} else if (normalizedUnit === symbol) {
 			amountHuman = borrowAmount;
+		} else {
+			throw new Error('借款金额单位与池子币种不匹配');
 		}
-		if (!Number.isFinite(amountHuman) || amountHuman <= 0) throw new Error('借款金额必须大于 0');
-		const amountMist = BigInt(Math.round(amountHuman * 10 ** decimals));
-		if (amountMist <= 0n) throw new Error('借款金额必须大于 0');
-		if (amountMist > BigInt(Number.MAX_SAFE_INTEGER)) {
-			throw new Error('当前实现暂不支持超过 MAX_SAFE_INTEGER 的借款金额');
-		}
+		const amountMist = this.toMistWithCheck(amountHuman, decimals, '借款');
 		const tx = new Transaction();
 		const borrowCoin = await borrowCoinPTB(
 			tx as any,
@@ -431,7 +545,7 @@ class SuiService {
 		);
 		tx.transferObjects([borrowCoin], tx.pure.address(borrowAddress));
 		return tx;
-	} // 阿斯顿
+	}
 	async borrowCoin(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
 		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId, signer, chain } = params;
 		const tx = await this.buildCoinBorrowTransaction({ borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId });
@@ -439,7 +553,7 @@ class SuiService {
 	}
 	async buildCoinWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {
 		const { coinType, amount, withdrawAddress, accountCapId } = params;
-		if (!coinType) throw new Error('必须指定币种');
+		const normalizedCoinType = this.normalizeCoinType(coinType);
 		if (amount <= 0n) throw new Error('必须指定金额');
 		this.assertAddress(withdrawAddress);
 		if (amount > BigInt(Number.MAX_SAFE_INTEGER)) {
@@ -448,17 +562,27 @@ class SuiService {
 		const tx = new Transaction();
 		const withdrawCoin = await withdrawCoinPTB(
 			tx as any, // 兼容 @mysten/sui 在依赖树里重复版本导致的类型私有字段不匹配
-			coinType,
+			normalizedCoinType,
 			Number(amount),
 			{ env: this.mapEnv(), accountCap: accountCapId }
 		);
-		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress)); // 这一步只是把 transferObject打包到tx中，不是真正的所有权转移，所有权转移需要signer下拉钱包签名
-		console.log('tx', tx);
+		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress));
 		return tx;
 	}
-	async withdrawCoin(params: { coinType: string; amount: string; withdrawAddress: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
+	async withdrawCoin(params: { coinType: string; amount: string | number | bigint; withdrawAddress: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
 		const { coinType, amount, withdrawAddress, accountCapId, signer, chain } = params;
-		const amountBigInt = BigInt(amount);
+		let amountBigInt: bigint;
+		if (typeof amount === 'bigint') {
+			amountBigInt = amount;
+		} else if (typeof amount === 'number') {
+			if (!Number.isFinite(amount) || amount <= 0) throw new Error('提现金额必须大于 0');
+			if (amount > Number.MAX_SAFE_INTEGER) throw new Error('提现金额过大');
+			amountBigInt = BigInt(Math.round(amount));
+		} else {
+			const trimmed = amount.trim();
+			if (!/^(\d+)$/.test(trimmed)) throw new Error('提现金额格式无效');
+			amountBigInt = BigInt(trimmed);
+		}
 		const tx = await this.buildCoinWithdrawTransaction({ coinType, amount: amountBigInt, withdrawAddress, accountCapId });
 		return signer({ transaction: tx, chain });
 	}
