@@ -180,52 +180,66 @@ class SuiService {
 	}
 
 	/**
-	 * 依据不同单位（币种、USD、百分比）计算转账所需的最小单位金额。
+	 * 统一的金额换算方法：支持币种 / USD / 百分比三种写法。
 	 */
-	public async calculateTransferAmount(params: { fromAddress: string; coin: string; amount: number; unit?: string }): Promise<bigint> {
-		const { fromAddress, coin, amount } = params;
+	private async calculateAmountWithUnit(params: { address: string; coin: string; amount: number; unit?: string; context: string }): Promise<bigint> {
+		const { address, coin, amount, context } = params;
 		let { unit } = params;
-		this.assertAddress(fromAddress);
-		this.ensureNumberAmount(amount, '转账金额必须大于 0');
+		this.assertAddress(address);
+		this.ensureNumberAmount(amount, `${context}金额必须大于 0`);
 		const symbol = coin.toUpperCase();
 		unit = (unit || symbol).toUpperCase();
 		const { decimals } = await this.getCoinMetaDynamic(symbol);
 		if (unit === symbol) {
-			return this.toMistWithCheck(amount, decimals, '转账');
+			return this.toMistWithCheck(amount, decimals, context);
 		}
 		if (unit === 'USD') {
 			const pool = await this.getPoolBySymbol(symbol);
 			if (!pool) {
-				throw new Error('无法获取币种价格，暂不支持按美元金额转账');
+				throw new Error(`无法获取币种价格，暂不支持按美元金额${context}`);
 			}
 			const price = Number(pool.oracle?.price);
 			if (!Number.isFinite(price) || price <= 0) {
-				throw new Error('无法获取币种价格，暂不支持按美元金额转账');
+				throw new Error(`无法获取币种价格，暂不支持按美元金额${context}`);
 			}
 			const amountHuman = amount / price;
-			return this.toMistWithCheck(amountHuman, decimals, '转账');
+			return this.toMistWithCheck(amountHuman, decimals, context);
 		}
 		if (unit === 'PERCENT' || unit === '%') {
 			if (amount > 100) {
-				throw new Error('百分比需在 0-100 范围内');
+				throw new Error(`${context}百分比需在 0-100 范围内`);
 			}
-			const balanceMistStr = await this.getCoinBalance(fromAddress, symbol);
+			const balanceMistStr = await this.getCoinBalance(address, symbol);
 			const balanceMist = BigInt(balanceMistStr || '0');
 			if (balanceMist <= 0n) {
-				throw new Error('账户余额为 0，无法按百分比转账');
+				throw new Error(`账户余额为 0，无法按百分比${context}`);
 			}
-			const scale = 10000n; // 保留 4 位小数精度
+			const scale = 10000n;
 			const scaledPercent = BigInt(Math.floor(amount * Number(scale)));
 			const amountMist = (balanceMist * scaledPercent) / (scale * 100n);
 			if (amountMist <= 0n) {
-				throw new Error('按百分比计算得到的金额过小，请提高百分比');
+				throw new Error(`按百分比计算得到的${context}金额过小，请提高百分比`);
 			}
 			if (amountMist > balanceMist) {
-				throw new Error('按百分比计算的金额超过余额');
+				throw new Error(`按百分比计算的${context}金额超过余额`);
 			}
 			return amountMist;
 		}
-		throw new Error('暂不支持的金额单位，请使用币种、USD 或百分比');
+		throw new Error(`暂不支持的${context}金额单位，请使用币种、USD 或 PERCENT`);
+	}
+
+	/**
+	 * 依据不同单位（币种、USD、百分比）计算转账所需的最小单位金额。
+	 */
+	public async calculateTransferAmount(params: { fromAddress: string; coin: string; amount: number; unit?: string }): Promise<bigint> {
+		const { fromAddress, coin, amount, unit } = params;
+		return this.calculateAmountWithUnit({
+			address: fromAddress,
+			coin,
+			amount,
+			unit,
+			context: '转账',
+		});
 	}
 
 	/** 将最小单位（字符串）转换为人类可读单位 */
@@ -459,18 +473,20 @@ class SuiService {
 		const allCoins = await this.client.getCoins({ owner, coinType });
 		if (allCoins.data.length === 0) throw new Error('余额不足');
 		const total = allCoins.data.reduce((sum, c) => sum + BigInt(c.balance), 0n);
-		const primaryCoinId = allCoins.data[0].coinObjectId;
-		const mergeIds = allCoins.data.slice(1).map(c => tx.object(c.coinObjectId));
-		if (mergeIds.length > 0) tx.mergeCoins(tx.object(primaryCoinId), mergeIds);
-		if(coin.toUpperCase() === 'SUI' && total >= amountMist) {
+		const isSui = coin.toUpperCase() === 'SUI';
+		if (isSui) {
+			if (total < amountMist) throw new Error('余额不足');
 			const [coinObject] = tx.splitCoins(tx.gas, [tx.pure.u64(amountMist)]);
-			console.log('sui gas', amountMist);
-			return { coinObject, total };
-		} else {
-			const [coinObject] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(amountMist)]);
-			console.log('primary', primaryCoinId);
 			return { coinObject, total };
 		}
+		const primaryCoinId = allCoins.data[0].coinObjectId;
+		const mergeIds = allCoins.data.slice(1).map(c => tx.object(c.coinObjectId));
+		if (mergeIds.length > 0) {
+			tx.mergeCoins(tx.object(primaryCoinId), mergeIds);
+		}
+		if (total < amountMist) throw new Error('余额不足');
+		const [coinObject] = tx.splitCoins(tx.object(primaryCoinId), [tx.pure.u64(amountMist)]);
+		return { coinObject, total };
 	}
 	/**
 	 * 构建 Navi 质押（deposit）交易（仅组装，不签名广播）：
@@ -483,22 +499,16 @@ class SuiService {
 		if (!depositAddress) throw new Error('需要提供质押地址');
 		this.assertAddress(depositAddress);
 		this.ensureNumberAmount(depositAmount, '质押金额必须大于 0');
-		const { poolInfo, symbol } = await this.resolvePoolOrThrow({ id: depositId, symbol: depositSymbol, context: 'deposit' });
+		const { symbol } = await this.resolvePoolOrThrow({ id: depositId, symbol: depositSymbol, context: 'deposit' });
 		const normalizedUnit = (depositUnit || '').toUpperCase() || symbol;
-		const { decimals, coinType } = await this.getCoinMetaDynamic(symbol);
-		let amountHuman: number;
-		if (normalizedUnit === 'USD') {
-			const price = Number(poolInfo.oracle?.price);
-			if (!Number.isFinite(price) || price <= 0) {
-				throw new Error('无法获取币种价格');
-			}
-			amountHuman = depositAmount / price;
-		} else if (normalizedUnit === symbol) {
-			amountHuman = depositAmount;
-		} else {
-			throw new Error('质押金额单位与池子币种不匹配');
-		}
-		const amountMist = this.toMistWithCheck(amountHuman, decimals, '质押');
+		const amountMist = await this.calculateAmountWithUnit({
+			address: depositAddress,
+			coin: symbol,
+			amount: depositAmount,
+			unit: normalizedUnit,
+			context: '质押',
+		});
+		const { coinType } = await this.getCoinMetaDynamic(symbol);
 		const tx = new Transaction();
 		const { coinObject, total } = await this.consolidateCoins(tx, depositAddress, symbol, amountMist);
 		if (total < amountMist) throw new Error('余额不足');
@@ -589,4 +599,3 @@ class SuiService {
 }
 const env = import.meta.env.VITE_SUI_ENV as SuiNetwork;
 export const suiService = new SuiService(env);
-

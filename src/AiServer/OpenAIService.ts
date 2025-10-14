@@ -210,9 +210,9 @@ class OpenAIService {
           const depositParsed = this.extractAndParseJSON<{ address: string, id: number, symbol: string, amount: number, unit: string, isValid: boolean, errorMessage: string, reasoning: string }>(depositContent);
           const depositAddress = depositParsed.address;
           const depositId = depositParsed.id;
-          const depositSymbol = depositParsed.symbol.toUpperCase();
+          const depositSymbol = (depositParsed.symbol || 'UNKNOWN').toUpperCase();
           const depositAmount = depositParsed.amount;
-          const depositUnit = depositParsed.unit.toUpperCase();
+          const depositUnit = depositParsed.unit ? depositParsed.unit.toString().toUpperCase() : depositSymbol;
           const depositIsValid = depositParsed.isValid;
           const depositReasoning = depositParsed.errorMessage || depositParsed.reasoning;
           if(!depositIsValid){
