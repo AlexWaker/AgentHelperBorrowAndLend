@@ -16,7 +16,8 @@ export const normalPrompt = (): string => {
   - 查询Portfolio（投资组合）
   - 存款
   - 借款
-  - 取款`;
+    - 取款
+    - 还款`;
 }
 
 export const firstIntentAnalysis = (): string => {
@@ -32,6 +33,7 @@ export const firstIntentAnalysis = (): string => {
     - 用户输入“帮我转账”“给某某地址转账”等，属于转账
   - 用户输入“帮我存款”“存入Navi的某个池子”等，属于存款
   - 用户输入“我要借”“帮我借点USDC”等，属于借款
+    - 用户输入“帮我还”“偿还借款”等，属于还款
   - 用户输入“帮我取出”等，属于取出
     - 用户输入“存了多少钱”“借了多少钱”等，属于查询投资组合。注意，这里所指的查询portfoliolio指的是“需要后端调取api查询”，如果用户给了你信息，你需要的是分析，应归类于other
     - 任何时候，都不要直接回答用户，都要先分析意图。如果你忍不住直接回答，请把意图分析为other

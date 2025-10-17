@@ -16,7 +16,7 @@
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions';
 // 不再使用静态 coinInfo，所有 coinType / decimals 均通过池子信息动态获取
-import { getPools, getPool, depositCoinPTB, getLendingState, withdrawCoinPTB, borrowCoinPTB } from '@naviprotocol/lending';
+import { getPools, getPool, depositCoinPTB, getLendingState, withdrawCoinPTB, borrowCoinPTB, repayCoinPTB } from '@naviprotocol/lending';
 
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet';
 
@@ -133,12 +133,13 @@ class SuiService {
 	 * 根据 id / symbol 拉取池子并做一致性校验。
 	 * 复用在存款与借款逻辑中，避免分支不一致。
 	 */
-	private async resolvePoolOrThrow(params: { id: number; symbol: string; context: 'deposit' | 'borrow' }): Promise<{ poolInfo: any; symbol: string }> {
+	private async resolvePoolOrThrow(params: { id: number; symbol: string; context: 'deposit' | 'borrow' | 'repay' }): Promise<{ poolInfo: any; symbol: string }> {
 		const { id, symbol, context } = params;
 		const hasId = typeof id === 'number' && id !== -1;
 		const hasSymbol = !!symbol && symbol !== 'UNKNOWN';
 		if (!hasId && !hasSymbol) {
-			throw new Error(`必须指定${context === 'deposit' ? '质押' : '借款'}池子 id 或币种符号`);
+			const action = context === 'deposit' ? '质押' : context === 'borrow' ? '借款' : '还款';
+			throw new Error(`必须指定${action}池子 id 或币种符号`);
 		}
 
 		let poolInfo: any = null;
@@ -182,8 +183,8 @@ class SuiService {
 	/**
 	 * 统一的金额换算方法：支持币种 / USD / 百分比三种写法。
 	 */
-	private async calculateAmountWithUnit(params: { address: string; coin: string; amount: number; unit?: string; context: string }): Promise<bigint> {
-		const { address, coin, amount, context } = params;
+	private async calculateAmountWithUnit(params: { address: string; coin: string; amount: number; unit?: string; context: string; percentBaseMist?: bigint | (() => Promise<bigint>) }): Promise<bigint> {
+		const { address, coin, amount, context, percentBaseMist } = params;
 		let { unit } = params;
 		this.assertAddress(address);
 		this.ensureNumberAmount(amount, `${context}金额必须大于 0`);
@@ -209,23 +210,53 @@ class SuiService {
 			if (amount > 100) {
 				throw new Error(`${context}百分比需在 0-100 范围内`);
 			}
-			const balanceMistStr = await this.getCoinBalance(address, symbol);
-			const balanceMist = BigInt(balanceMistStr || '0');
-			if (balanceMist <= 0n) {
-				throw new Error(`账户余额为 0，无法按百分比${context}`);
+			let baseMist: bigint;
+			if (typeof percentBaseMist === 'function') {
+				baseMist = await percentBaseMist();
+			} else if (typeof percentBaseMist === 'bigint') {
+				baseMist = percentBaseMist;
+			} else {
+				const balanceMistStr = await this.getCoinBalance(address, symbol);
+				baseMist = BigInt(balanceMistStr || '0');
+			}
+			const baseLabel = typeof percentBaseMist !== 'undefined' ? '借款余额' : '余额';
+			if (baseMist <= 0n) {
+				const referenceLabel = typeof percentBaseMist !== 'undefined' ? '借款余额' : '账户余额';
+				throw new Error(`${referenceLabel}为 0，无法按百分比${context}`);
 			}
 			const scale = 10000n;
 			const scaledPercent = BigInt(Math.floor(amount * Number(scale)));
-			const amountMist = (balanceMist * scaledPercent) / (scale * 100n);
+			const amountMist = (baseMist * scaledPercent) / (scale * 100n);
 			if (amountMist <= 0n) {
 				throw new Error(`按百分比计算得到的${context}金额过小，请提高百分比`);
 			}
-			if (amountMist > balanceMist) {
-				throw new Error(`按百分比计算的${context}金额超过余额`);
+			if (amountMist > baseMist) {
+				throw new Error(`按百分比计算的${context}金额超过${baseLabel}`);
 			}
 			return amountMist;
 		}
 		throw new Error(`暂不支持的${context}金额单位，请使用币种、USD 或 PERCENT`);
+	}
+
+	private async getBorrowBalanceMist(address: string, symbol: string): Promise<bigint> {
+		this.assertAddress(address);
+		const upper = symbol.toUpperCase();
+		try {
+			const lendingState = await this.getNaviLendingState(address);
+			if (!Array.isArray(lendingState)) return 0n;
+			const match = lendingState.find((item: any) => {
+				const poolSymbol = item?.pool?.token?.symbol || item?.pool?.tokenSymbol || item?.token?.symbol;
+				return typeof poolSymbol === 'string' && poolSymbol.toUpperCase() === upper;
+			});
+			if (!match) return 0n;
+			const borrowRaw = (match.borrowBalance ?? match.borrow_balance ?? match.borrowAmount ?? match.borrow_amount ?? '0');
+			const borrowNumber = typeof borrowRaw === 'number' ? borrowRaw : Number(borrowRaw);
+			if (!Number.isFinite(borrowNumber) || borrowNumber <= 0) return 0n;
+			return BigInt(borrowNumber);
+		} catch (error) {
+			console.warn('获取借款余额失败:', error);
+			return 0n;
+		}
 	}
 
 	/**
@@ -559,6 +590,53 @@ class SuiService {
 	async borrowCoin(params: { borrowAddress: string; borrowId: number; borrowSymbol: string; borrowAmount: number; borrowUnit: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
 		const { borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId, signer, chain } = params;
 		const tx = await this.buildCoinBorrowTransaction({ borrowAddress, borrowId, borrowSymbol, borrowAmount, borrowUnit, accountCapId });
+		return signer({ transaction: tx, chain });
+	}
+	async buildCoinRepayTransaction(params: { repayAddress: string; repayId: number; repaySymbol: string; repayAmount: number; repayUnit: string; accountCapId?: string }): Promise<Transaction> {
+		const { repayAddress, repayId, repaySymbol, repayAmount, repayUnit, accountCapId } = params;
+		if (!repayAddress) throw new Error('需要提供还款地址');
+		this.assertAddress(repayAddress);
+		this.ensureNumberAmount(repayAmount, '还款金额必须大于 0');
+		const { symbol } = await this.resolvePoolOrThrow({ id: repayId, symbol: repaySymbol, context: 'repay' });
+		const normalizedUnit = (repayUnit || '').toUpperCase() || symbol;
+		const borrowMist = await this.getBorrowBalanceMist(repayAddress, symbol);
+		if (borrowMist <= 0n) {
+			throw new Error('当前没有该币种的未偿还借款');
+		}
+		let amountMist = await this.calculateAmountWithUnit({
+			address: repayAddress,
+			coin: symbol,
+			amount: repayAmount,
+			unit: normalizedUnit,
+			context: '还款',
+			percentBaseMist: normalizedUnit === 'PERCENT' ? borrowMist : undefined,
+		});
+		if (amountMist > borrowMist) {
+			if (amountMist - borrowMist <= 1n) {
+				amountMist = borrowMist;
+			} else {
+				throw new Error('还款金额超过当前借款余额');
+			}
+		}
+		const { coinType } = await this.getCoinMetaDynamic(symbol);
+		const tx = new Transaction();
+		const { coinObject, total } = await this.consolidateCoins(tx, repayAddress, symbol, amountMist);
+		if (total < amountMist) throw new Error('余额不足');
+		const repayOptions: { env: 'prod' | 'dev'; accountCap?: string } = { env: this.mapEnv() };
+		if (accountCapId && accountCapId !== 'NONE') {
+			repayOptions.accountCap = accountCapId;
+		}
+		await repayCoinPTB(
+			tx as any,
+			coinType,
+			coinObject,
+			repayOptions
+		);
+		return tx;
+	}
+	async repayCoin(params: { repayAddress: string; repayId: number; repaySymbol: string; repayAmount: number; repayUnit: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
+		const { repayAddress, repayId, repaySymbol, repayAmount, repayUnit, accountCapId, signer, chain } = params;
+		const tx = await this.buildCoinRepayTransaction({ repayAddress, repayId, repaySymbol, repayAmount, repayUnit, accountCapId });
 		return signer({ transaction: tx, chain });
 	}
 	async buildCoinWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {

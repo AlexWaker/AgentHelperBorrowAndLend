@@ -4,6 +4,7 @@ export const intentType = {
     QUERY_POOLS: "QUERY_POOLS",
     DEPOSIT: "DEPOSIT",
     BORROW: "BORROW",
+    REPAY: "REPAY",
     QUERY_PORTFOLIO: "QUERY_PORTFOLIO",
     WITHDRAW: "WITHDRAW",
     OTHER: "OTHER"

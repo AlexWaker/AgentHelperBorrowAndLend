@@ -25,6 +25,7 @@ import { transferCoinPrompt, transferResultPrompt } from './TransferPrompt'
 import { queryPoolResultPrompt } from './QueryPoolsPrompt';
 import { depositPrompt, depositNotClear } from './DepositPrompt';
 import { borrowPrompt, borrowNotClear } from './BorrowPrompt';
+import { repayPrompt, repayNotClear } from './RepayPrompt';
 import { queryPortfolioPrompt, queryNotClear, queryPortfolioResultPrompt } from './QueryPortfolioPrompt';
 import { withdrawPortfolioPrompt } from './WithdrawPortfolioPrompt';
 
@@ -247,7 +248,6 @@ class OpenAIService {
               return '质押失败，请稍后重试。';
             }
           }
-          return '未能完成质押操作';
         }
         case intentType.BORROW: {
           const borrowMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -258,7 +258,8 @@ class OpenAIService {
           console.log('借款分析回复:', borrowContent);
           const borrowParsed = this.extractAndParseJSON<{ address: string; id: number; symbol: string; amount: number; unit: string; accountCapId?: string; isValid: boolean; errorMessage?: string; reasoning?: string }>(borrowContent);
           const borrowSymbol = (borrowParsed.symbol || 'UNKNOWN').toUpperCase();
-          const borrowUnit = (borrowParsed.unit || '').toUpperCase();
+          const borrowUnitRaw = (borrowParsed.unit || '').toUpperCase();
+          const borrowUnit = borrowUnitRaw || (borrowSymbol !== 'UNKNOWN' ? borrowSymbol : '');
           const borrowAccountCapId = borrowParsed.accountCapId && borrowParsed.accountCapId !== 'NONE' ? borrowParsed.accountCapId : undefined;
           if (!borrowParsed.isValid) {
             const borrowClarifyMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -302,6 +303,65 @@ class OpenAIService {
           } catch (e) {
             console.error('借款失败:', e);
             return '借款失败，请稍后重试。';
+          }
+        }
+        case intentType.REPAY: {
+          const repayMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+            { role: 'system', content: repayPrompt(walletAddress) },
+            ...openAIMessages
+          ];
+          const repayContent = await this.callOpenAIAPI(repayMessages, '还款分析');
+          console.log('还款分析回复:', repayContent);
+          const repayParsed = this.extractAndParseJSON<{ address: string; id: number; symbol: string; amount: number; unit: string; accountCapId?: string; isValid: boolean; errorMessage?: string; reasoning?: string }>(repayContent);
+          const repaySymbol = (repayParsed.symbol || 'UNKNOWN').toUpperCase();
+          const repayUnitRaw = (repayParsed.unit || '').toUpperCase();
+          const repayUnit = repayUnitRaw || (repaySymbol !== 'UNKNOWN' ? repaySymbol : '');
+          const repayAccountCapId = repayParsed.accountCapId && repayParsed.accountCapId !== 'NONE' ? repayParsed.accountCapId : undefined;
+          if (!repayParsed.isValid) {
+            const repayClarifyMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: repayNotClear() },
+              ...openAIMessages,
+              { role: 'user', content: repayParsed.errorMessage || repayParsed.reasoning || '请根据用户最后的输入进行回复。' }
+            ];
+            const repayClarifyContent = await this.callOpenAIAPI(repayClarifyMessages, '还款指令不清晰');
+            return repayClarifyContent || '（空回复）';
+          }
+          if (repayParsed.id === -1 && repaySymbol === 'UNKNOWN') {
+            return '无法发起还款：缺少目标池子信息，请提供池子 id 或代币符号。';
+          }
+          if (!Number.isFinite(repayParsed.amount) || repayParsed.amount <= 0) {
+            return '无法发起还款：还款金额无效，请检查后重新输入。';
+          }
+          if (!repayUnit) {
+            return '无法发起还款：缺少还款金额单位，请补充是 USD 还是具体币种。';
+          }
+          if (!signer) {
+            return '无法发起还款：未提供钱包签名器，请先连接钱包或传入 signer。';
+          }
+          if (!walletAddress) {
+            return '无法发起还款：钱包地址未定义，请先连接钱包。';
+          }
+          if (repayParsed.address && repayParsed.address !== '未连接' && repayParsed.address.toLowerCase() !== walletAddress.toLowerCase()) {
+            return '无法发起还款：用户提供的地址与当前钱包不一致。';
+          }
+          try {
+            const repayResult = await suiService.repayCoin({
+              repayAddress: walletAddress,
+              repayId: repayParsed.id,
+              repaySymbol,
+              repayAmount: repayParsed.amount,
+              repayUnit,
+              accountCapId: repayAccountCapId,
+              signer
+            });
+            if (repayResult?.digest) {
+              return `还款提交成功，交易哈希: ${repayResult.digest}`;
+            }
+            console.log('还款结果:', repayResult);
+            return '还款已提交，请在钱包内查看进度。';
+          } catch (e) {
+            console.error('还款失败:', e);
+            return '还款失败，请稍后重试。';
           }
         }
         case intentType.QUERY_BALANCE:
