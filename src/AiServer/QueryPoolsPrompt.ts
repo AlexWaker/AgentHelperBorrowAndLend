@@ -1,5 +1,5 @@
 // import { supportCoin } from "./SupportCoin";
-export const queryPoolPrompt = (queryResult: any): string => {
+export const queryPoolPrompt = (): string => {
     return `【查询NAVI池子信息任务】
     已确定用户意图为：查询池子信息
 

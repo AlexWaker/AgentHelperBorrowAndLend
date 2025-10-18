@@ -38,6 +38,29 @@ export type NaviPoolInfo = {
 	price: string;
 }
 
+type WithdrawRawParams = {
+	coinType: string;
+	amount: string | number | bigint;
+	withdrawAddress: string;
+	accountCapId?: string;
+	signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>;
+	chain?: string;
+};
+
+type WithdrawParams = {
+	withdrawAddress: string;
+	withdrawId: number;
+	withdrawSymbol: string;
+	withdrawAmount: number;
+	withdrawUnit: string;
+	accountCapId?: string;
+	signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>;
+	chain?: string;
+	portfolioSnapshot?: any;
+	/** 可选 coinType 提示，与其他流程保持一致时可忽略，默认基于池子解析 */
+	coinTypeHint?: string;
+};
+
 class SuiService {
 	private readonly defaultNetwork: SuiNetwork;
 	private readonly client: SuiClient;
@@ -129,16 +152,89 @@ class SuiService {
 		return trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
 	}
 
+	private parseBigIntAmount(value: string | number | bigint, context: string): bigint {
+		if (typeof value === 'bigint') {
+			if (value <= 0n) throw new Error(`${context}金额必须大于 0`);
+			return value;
+		}
+		if (typeof value === 'number') {
+			if (!Number.isFinite(value) || value <= 0) throw new Error(`${context}金额必须大于 0`);
+			return BigInt(Math.round(value));
+		}
+		if (typeof value === 'string') {
+			const trimmed = value.trim();
+			if (!trimmed) throw new Error(`${context}金额格式无效`);
+			if (!/^[0-9]+$/.test(trimmed)) throw new Error(`${context}金额格式无效`);
+			const parsed = BigInt(trimmed);
+			if (parsed <= 0n) throw new Error(`${context}金额必须大于 0`);
+			return parsed;
+		}
+		throw new Error(`${context}金额格式无效`);
+	}
+
+	private extractSupplyBalanceMist(portfolioSnapshot: any, symbol: string): { found: boolean; balance: bigint } | undefined {
+		if (!portfolioSnapshot) return undefined;
+		const list = Array.isArray(portfolioSnapshot) ? portfolioSnapshot : Array.isArray(portfolioSnapshot?.data) ? portfolioSnapshot.data : undefined;
+		if (!Array.isArray(list)) return undefined;
+		const upper = symbol.toUpperCase();
+		for (const item of list) {
+			const poolSymbol = item?.pool?.token?.symbol || item?.pool?.tokenSymbol || item?.token?.symbol;
+			if (typeof poolSymbol !== 'string' || poolSymbol.toUpperCase() !== upper) continue;
+			const raw = item?.supplyBalance ?? item?.supply_balance ?? item?.depositBalance ?? item?.deposit_balance ?? item?.balance;
+			if (raw === undefined || raw === null) {
+				return { found: true, balance: 0n };
+			}
+			try {
+				if (typeof raw === 'string') {
+					const trimmed = raw.trim();
+					if (!trimmed) return { found: true, balance: 0n };
+					return { found: true, balance: BigInt(trimmed) };
+				}
+				if (typeof raw === 'number') {
+					if (!Number.isFinite(raw)) return { found: true, balance: 0n };
+					const normalized = Math.floor(raw);
+					return { found: true, balance: normalized > 0 ? BigInt(normalized) : 0n };
+				}
+				if (typeof raw === 'bigint') {
+					return { found: true, balance: raw > 0n ? raw : 0n };
+				}
+			} catch (error) {
+				return { found: true, balance: 0n };
+			}
+			return { found: true, balance: 0n };
+		}
+		return { found: false, balance: 0n };
+	}
+
+	private async getSupplyBalanceMist(address: string, symbol: string, portfolioSnapshot?: any): Promise<bigint> {
+		const snapshotResult = this.extractSupplyBalanceMist(portfolioSnapshot, symbol);
+		if (snapshotResult) {
+			if (snapshotResult.found) {
+				return snapshotResult.balance;
+			}
+		}
+		const latest = await this.getNaviLendingState(address);
+		const latestResult = this.extractSupplyBalanceMist(latest, symbol);
+		if (latestResult && latestResult.found) {
+			return latestResult.balance;
+		}
+		return 0n;
+	}
+
 	/**
 	 * 根据 id / symbol 拉取池子并做一致性校验。
 	 * 复用在存款与借款逻辑中，避免分支不一致。
 	 */
-	private async resolvePoolOrThrow(params: { id: number; symbol: string; context: 'deposit' | 'borrow' | 'repay' }): Promise<{ poolInfo: any; symbol: string }> {
+	private async resolvePoolOrThrow(params: { id: number; symbol: string; context: 'deposit' | 'borrow' | 'repay' | 'withdraw' }): Promise<{ poolInfo: any; symbol: string }> {
 		const { id, symbol, context } = params;
 		const hasId = typeof id === 'number' && id !== -1;
 		const hasSymbol = !!symbol && symbol !== 'UNKNOWN';
 		if (!hasId && !hasSymbol) {
-			const action = context === 'deposit' ? '质押' : context === 'borrow' ? '借款' : '还款';
+			let action = '操作';
+			if (context === 'deposit') action = '质押';
+			else if (context === 'borrow') action = '借款';
+			else if (context === 'repay') action = '还款';
+			else if (context === 'withdraw') action = '提现';
 			throw new Error(`必须指定${action}池子 id 或币种符号`);
 		}
 
@@ -639,7 +735,10 @@ class SuiService {
 		const tx = await this.buildCoinRepayTransaction({ repayAddress, repayId, repaySymbol, repayAmount, repayUnit, accountCapId });
 		return signer({ transaction: tx, chain });
 	}
-	async buildCoinWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {
+	/**
+	 * 原始 coinType + 最小单位金额 的提现交易构建（仅内部复用）
+	 */
+	private async buildRawWithdrawTransaction(params: { coinType: string; amount: bigint; withdrawAddress: string; accountCapId?: string }): Promise<Transaction> {
 		const { coinType, amount, withdrawAddress, accountCapId } = params;
 		const normalizedCoinType = this.normalizeCoinType(coinType);
 		if (amount <= 0n) throw new Error('必须指定金额');
@@ -649,7 +748,7 @@ class SuiService {
 		}
 		const tx = new Transaction();
 		const withdrawCoin = await withdrawCoinPTB(
-			tx as any, // 兼容 @mysten/sui 在依赖树里重复版本导致的类型私有字段不匹配
+			tx as any,
 			normalizedCoinType,
 			Number(amount),
 			{ env: this.mapEnv(), accountCap: accountCapId }
@@ -657,21 +756,77 @@ class SuiService {
 		tx.transferObjects([withdrawCoin], tx.pure.address(withdrawAddress));
 		return tx;
 	}
-	async withdrawCoin(params: { coinType: string; amount: string | number | bigint; withdrawAddress: string; accountCapId?: string; signer: (args: { transaction: Transaction; chain?: string }) => Promise<{ digest?: string } | any>; chain?: string }): Promise<{ digest?: string } | any> {
-		const { coinType, amount, withdrawAddress, accountCapId, signer, chain } = params;
-		let amountBigInt: bigint;
-		if (typeof amount === 'bigint') {
-			amountBigInt = amount;
-		} else if (typeof amount === 'number') {
-			if (!Number.isFinite(amount) || amount <= 0) throw new Error('提现金额必须大于 0');
-			if (amount > Number.MAX_SAFE_INTEGER) throw new Error('提现金额过大');
-			amountBigInt = BigInt(Math.round(amount));
-		} else {
-			const trimmed = amount.trim();
-			if (!/^(\d+)$/.test(trimmed)) throw new Error('提现金额格式无效');
-			amountBigInt = BigInt(trimmed);
+
+	/**
+	 * 与 deposit/borrow/repay 对齐的提现交易构建：按 id/symbol + 金额/单位，内部负责校验与换算。
+	 */
+	async buildCoinWithdrawTransaction(params: { withdrawAddress: string; withdrawId: number; withdrawSymbol: string; withdrawAmount: number; withdrawUnit: string; accountCapId?: string; portfolioSnapshot?: any; coinTypeHint?: string }): Promise<Transaction> {
+		const { withdrawAddress, withdrawId, withdrawSymbol, withdrawAmount, withdrawUnit, accountCapId, portfolioSnapshot, coinTypeHint } = params;
+		this.assertAddress(withdrawAddress);
+		if (!Number.isFinite(withdrawAmount) || withdrawAmount <= 0) {
+			throw new Error('提现金额必须大于 0');
 		}
-		const tx = await this.buildCoinWithdrawTransaction({ coinType, amount: amountBigInt, withdrawAddress, accountCapId });
+		const { poolInfo, symbol } = await this.resolvePoolOrThrow({ id: withdrawId, symbol: withdrawSymbol, context: 'withdraw' });
+		const normalizedSymbol = symbol.toUpperCase();
+		const withdrawableMist = await this.getSupplyBalanceMist(withdrawAddress, normalizedSymbol, portfolioSnapshot);
+		if (withdrawableMist <= 0n) {
+			throw new Error(`当前没有 ${normalizedSymbol} 的可提余额`);
+		}
+
+		let normalizedUnit = (withdrawUnit || '').toUpperCase() || normalizedSymbol;
+		let amountValue = withdrawAmount;
+		if (normalizedUnit === '%') normalizedUnit = 'PERCENT';
+
+		const percentBase = normalizedUnit === 'PERCENT' ? withdrawableMist : undefined;
+		let amountMist = await this.calculateAmountWithUnit({
+			address: withdrawAddress,
+			coin: normalizedSymbol,
+			amount: amountValue,
+			unit: normalizedUnit,
+			context: '提现',
+			percentBaseMist: percentBase,
+		});
+		if (amountMist > withdrawableMist) {
+			amountMist = withdrawableMist;
+		}
+		if (amountMist <= 0n) {
+			throw new Error('提现金额必须大于 0');
+		}
+
+		// 尽量基于池子解析 coinType，与其他流程一致；coinTypeHint 仅作可选提示
+		let coinType: string | undefined;
+		const hint = coinTypeHint?.trim();
+		if (hint) {
+			try {
+				coinType = this.normalizeCoinType(hint);
+			} catch {
+				// 忽略 hint 错误，继续用池子信息解析
+			}
+		}
+		if (!coinType) {
+			const inferred = poolInfo?.token?.coinType || poolInfo?.coinType;
+			if (typeof inferred === 'string' && inferred.trim()) {
+				coinType = this.normalizeCoinType(inferred);
+			} else {
+				({ coinType } = await this.getCoinMetaDynamic(normalizedSymbol));
+			}
+		}
+
+		return this.buildRawWithdrawTransaction({ coinType, amount: amountMist, withdrawAddress, accountCapId });
+	}
+
+	/** 一步式提现：对齐 deposit/borrow/repay 的调用风格 */
+	async withdrawCoin(params: WithdrawParams): Promise<{ digest?: string } | any> {
+		const { withdrawAddress, withdrawId, withdrawSymbol, withdrawAmount, withdrawUnit, accountCapId, signer, chain, portfolioSnapshot, coinTypeHint } = params;
+		const tx = await this.buildCoinWithdrawTransaction({ withdrawAddress, withdrawId, withdrawSymbol, withdrawAmount, withdrawUnit, accountCapId, portfolioSnapshot, coinTypeHint });
+		return signer({ transaction: tx, chain });
+	}
+
+	/** 可选：按 coinType + 最小单位金额直接提现的便捷方法（需要调用方自行换算） */
+	async withdrawCoinByCoinType(params: WithdrawRawParams): Promise<{ digest?: string } | any> {
+		const { coinType, amount, withdrawAddress, accountCapId, signer, chain } = params;
+		const amountBigInt = this.parseBigIntAmount(amount, '提现');
+		const tx = await this.buildRawWithdrawTransaction({ coinType, amount: amountBigInt, withdrawAddress, accountCapId });
 		return signer({ transaction: tx, chain });
 	}
 }

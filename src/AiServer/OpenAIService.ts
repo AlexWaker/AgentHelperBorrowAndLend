@@ -27,7 +27,7 @@ import { depositPrompt, depositNotClear } from './DepositPrompt';
 import { borrowPrompt, borrowNotClear } from './BorrowPrompt';
 import { repayPrompt, repayNotClear } from './RepayPrompt';
 import { queryPortfolioPrompt, queryNotClear, queryPortfolioResultPrompt } from './QueryPortfolioPrompt';
-import { withdrawPortfolioPrompt } from './WithdrawPortfolioPrompt';
+import { withdrawPortfolioPrompt, withdrawPortfolioNotClear } from './WithdrawPortfolioPrompt';
 
 class OpenAIService {
   private client: OpenAI;
@@ -498,19 +498,54 @@ class OpenAIService {
             const queryNotClearContent = await this.callOpenAIAPI(queryNotClearMessages, '投资组合查询指令不清晰');
             return queryNotClearContent || '（空回复）';
           }
-        case intentType.WITHDRAW:
-          // 这里必须先查当前地址的投资组合
-          const portfolioInfo = await suiService.getNaviLendingState(walletAddress); //强类型检查真烦人
+        case intentType.WITHDRAW: {
           const withdrawMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-            { role: 'system', content: withdrawPortfolioPrompt(portfolioInfo) },
+            { role: 'system', content: withdrawPortfolioPrompt(walletAddress) },
             ...openAIMessages
           ];
           const withdrawContent = await this.callOpenAIAPI(withdrawMessages, '投资组合提现');
-          const withdrawParsed = this.extractAndParseJSON<{ coinType: string, amount: string, errorMessage: string, reasoning: string }>(withdrawContent);
-          console.log("withdrawParsed", withdrawParsed)
-          if (withdrawParsed.errorMessage) {
-            return withdrawParsed.errorMessage;
+          const withdrawParsed = this.extractAndParseJSON<{
+            address: string;
+            id: number;
+            symbol: string;
+            coinType?: string;
+            amount: number;
+            unit?: string;
+            isValid: boolean;
+            errorMessage?: string;
+            reasoning?: string;
+          }>(withdrawContent);
+          console.log('withdrawParsed', withdrawParsed);
+
+          // 1) 先按统一 isValid 流程澄清
+          if (!withdrawParsed.isValid) {
+            const withdrawClarifyMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+              { role: 'system', content: withdrawPortfolioNotClear() },
+              ...openAIMessages,
+              { role: 'user', content: withdrawParsed.errorMessage || withdrawParsed.reasoning || '请根据用户最后的输入进行回复。' }
+            ];
+            const withdrawClarifyContent = await this.callOpenAIAPI(withdrawClarifyMessages, '投资组合提现指令不清晰');
+            return withdrawClarifyContent || '（空回复）';
           }
+
+          // 2) 与其他分支一致的简洁校验
+          const withdrawSymbol = (withdrawParsed.symbol || 'UNKNOWN').toUpperCase();
+          const unitRaw = (withdrawParsed.unit || '').toUpperCase();
+          const withdrawUnit = unitRaw || (withdrawSymbol !== 'UNKNOWN' ? withdrawSymbol : '');
+          if (withdrawParsed.id === -1 && withdrawSymbol === 'UNKNOWN') {
+            return '无法发起提现：缺少目标池子信息，请提供池子 id 或代币符号。';
+          }
+          if (!Number.isFinite(withdrawParsed.amount) || withdrawParsed.amount <= 0) {
+            return '无法发起提现：提现金额无效，请检查后重新输入。';
+          }
+          if (!withdrawUnit) {
+            return '无法发起提现：缺少提现金额单位，请补充是 USD、具体币种，或百分比。';
+          }
+          if (withdrawParsed.address && withdrawParsed.address !== '未连接' && walletAddress && withdrawParsed.address.toLowerCase() !== walletAddress.toLowerCase()) {
+            return '无法发起提现：指令中的地址与当前钱包不一致。';
+          }
+
+          // 3) 触发链上操作，单位换算等细节交给 SuiService 处理（与借款/还款一致）
           try {
             if (!signer) {
               return '无法发起提现：未提供钱包签名器，请先连接钱包或传入 signer。';
@@ -518,23 +553,28 @@ class OpenAIService {
             if (!walletAddress) {
               return '无法发起提现：钱包地址未定义，请先连接钱包。';
             }
-            // 构建 + 发送交易
             const withdrawResult = await suiService.withdrawCoin({
-              coinType: withdrawParsed.coinType,
-              amount: withdrawParsed.amount,
               withdrawAddress: walletAddress,
-              signer
+              withdrawId: withdrawParsed.id,
+              withdrawSymbol,
+              withdrawAmount: withdrawParsed.amount,
+              withdrawUnit,
+              signer,
+              coinTypeHint: withdrawParsed.coinType || ''
             });
             if (withdrawResult?.digest) {
               return `提现提交成功，交易哈希: ${withdrawResult.digest}`;
             }
             console.log('提现结果:', withdrawResult);
             return '提现已提交，请在钱包内查看进度。';
-            // return '提现功能开发中，敬请期待';
           } catch (e) {
             console.error('提现失败:', e);
+            if (e instanceof Error && e.message) {
+              return `提现失败：${e.message}`;
+            }
             return '提现失败，请稍后重试。';
           }
+        }
         default:
           // 兜底：无匹配意图 -> 普通对话 / 闲聊
           const casualMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

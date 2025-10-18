@@ -1,4 +1,4 @@
-# AgentHelperBorrowAndLend · AI 驱动的 Navi 助手
+# Agenavi· AI 驱动的 Navi 助手
 
 ![AgentHelperBorrowAndLend Banner](docs/images/cover.png)
 
@@ -8,7 +8,7 @@
 
 ## 相关链接
 
-- ❗️ 项目网站：
+- ❗️ 项目网站：https://agenavi.wal.app/
 - ❗️ 官推：[@agentonsui](https://x.com/agentonsui)
 - ❗️ Navi官网：https://naviprotocol.io/
 
@@ -98,13 +98,13 @@ pnpm preview
 ---
 
 ## 未来规划
-- 😊 多意图打包签名发送，让多种操作一键搞定。
-- 😊 接入Astra，支持用自然语言进行Swap。
-- 😊 继续优化Prompt，支持更加多样化的自然语言描述。
-- 😊 融入Navi，成为Navi网站的一个功能模块。
-- 😊 增设 DeFi 聚合看板、币种报价、新闻等模块，做到“看到就问，立刻解答”。
-- 😊 支持Sui上其他DeFi，如Headal、Scollop等。
-- 😊 扩展至其他链（以太坊、Solana等），增设用自然语言跨链功能，成为全链（抽象链）Agent。
+- 🍃 多意图打包签名发送，让多种操作一键搞定。
+- 🌛 接入Astra，支持用自然语言进行Swap。
+- 🌞 继续优化Prompt，支持更加多样化的自然语言描述。
+- ☕️ 融入Navi，成为Navi网站的一个功能模块。
+- 🍞 增设 DeFi 聚合看板、币种报价、新闻等模块，做到“看到就问，立刻解答”。
+- 🥥 支持Sui上其他DeFi，如Headal、Scollop等。
+- 🍊 扩展至其他链（以太坊、Solana等），增设用自然语言跨链功能，成为全链（抽象链）Agent。
 
 欢迎通过 Issues / PR 提出建议或贡献代码。
 
